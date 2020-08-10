@@ -1,0 +1,24 @@
+server:
+  port: 8070
+  
+logging:
+  level:
+    root: DEBUG
+
+# classpath:config/servers/
+# classpath:config/messages/
+# classpath:config/handlers/
+
+# URL is comma separated
+carrier:
+  path:
+    server:  
+    message: 
+    handler: 
+  url:
+    server: http://localhost:8081/servers 
+    message: http://localhost:8081/messages
+    handler: http://localhost:8081/handlers
+  client:
+    url: http://localhost:8082/
+      

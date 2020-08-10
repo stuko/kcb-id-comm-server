@@ -1,0 +1,1 @@
+java -jar -Dio.netty.tryReflectionSetAccessible=true --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --illegal-access=warn carrier-0.0.1-SNAPSHOT.jar

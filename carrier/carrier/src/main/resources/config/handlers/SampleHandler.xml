@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+<handler handlerName="SampleHandler" 
+         enable="true" 
+         handlerClass="com.kcb.id.comm.carrier.handler.impl.SampleHandler" 
+         businessClass="com.kcb.id.comm.carrier.service.impl.SampleService"></handler>
+</SET>

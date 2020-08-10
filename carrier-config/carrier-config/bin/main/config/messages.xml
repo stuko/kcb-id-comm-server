@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+	<message forward="SampleMessage1" name="SampleMessage" >
+		<request repeat="false"
+			repeatVariable="LENGTH" transferType="VO" securityClass="false"
+			path="d:/tmp/">
+			<header>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="22" name="SSN" padType="rpad"
+					padChar="#" encode="false" decode="false"></field>
+				<field start="38" length="4" name="NAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="41" length="8" name="MGTNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="48" length="11" name="FILLER1" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="58" length="3" name="SI" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="60" length="5" name="REGCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="64" length="7" name="REGDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="70" length="8" name="EMAIL" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="77" length="9" name="HPNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="85" length="11" name="APPLYDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="95" length="11" name="CANCELDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SMSYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="EMAILYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SVCCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="REGDATETIME"
+					padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="AGRYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER2" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER3" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</tail>
+		</request>
+		<response repeat="false" repeatVariable="LENGTH"
+			transferType="VO" securityClass="false" path="d:/tmp/">
+			<header>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="22" name="SSN" padType="rpad"
+					padChar="#" encode="false" decode="false"></field>
+				<field start="38" length="4" name="NAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="41" length="8" name="MGTNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="48" length="11" name="FILLER1" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="58" length="3" name="SI" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="60" length="5" name="REGCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="64" length="7" name="REGDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="70" length="8" name="EMAIL" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="77" length="9" name="HPNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="85" length="11" name="APPLYDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="95" length="11" name="CANCELDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SMSYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="EMAILYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SVCCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="REGDATETIME"
+					padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="AGRYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER2" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER3" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</tail>
+		</response>
+		<error name="MessageFormatException">
+			<header>
+				<field start="0" length="1" name="CODE" padType="rpad"
+					padChar=" " encode="false" decode="false" value="S001"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false" value="ERROR"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false" value="See you later"></field>
+			</tail>
+		</error>
+		<error name="ForwardTargetException">
+			<header>
+				<field start="0" length="1" name="CODE" padType="rpad"
+					padChar=" " encode="false" decode="false" value="S002"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false" value="ERROR"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false" value="See you later"></field>
+			</tail>
+		</error>
+		<error name="TCPException">
+			<header>
+				<field start="0" length="1" name="CODE" padType="rpad"
+					padChar=" " encode="false" decode="false" value="S003"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false" value="ERROR"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false" value="See you later"></field>
+			</tail>
+		</error>
+	</message>
+	<message  forward="" name="SampleMessage2" >
+		<request repeat="false"
+			repeatVariable="LENGTH" transferType="VO" securityClass="false"
+			path="d:/tmp/">
+			<header>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="22" name="SSN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="38" length="4" name="NAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="41" length="8" name="MGTNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="48" length="11" name="FILLER1" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="58" length="3" name="SI" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="60" length="5" name="REGCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="64" length="7" name="REGDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="70" length="8" name="EMAIL" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="77" length="9" name="HPNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="85" length="11" name="APPLYDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="95" length="11" name="CANCELDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SMSYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="EMAILYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SVCCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="REGDATETIME"
+					padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="AGRYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER2" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER3" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</tail>
+		</request>
+		<response repeat="false" repeatVariable="LENGTH"
+			transferType="VO" securityClass="false" path="d:/tmp/">
+			<header>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="22" name="SSN" padType="rpad"
+					padChar="$" encode="false" decode="false"></field>
+				<field start="38" length="4" name="NAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="41" length="8" name="MGTNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="48" length="11" name="FILLER1" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="58" length="3" name="SI" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="60" length="5" name="REGCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="64" length="7" name="REGDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="70" length="8" name="EMAIL" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="77" length="9" name="HPNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="85" length="11" name="APPLYDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="95" length="11" name="CANCELDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SMSYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="EMAILYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SVCCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="REGDATETIME"
+					padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="AGRYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER2" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER3" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</tail>
+		</response>
+	</message>
+	<message forward="" name="SampleMessage3" >
+		<request repeat="false"
+			repeatVariable="LENGTH" transferType="VO" securityClass="false"
+			path="d:/tmp/">
+			<header>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="22" name="SSN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="38" length="4" name="NAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="41" length="8" name="MGTNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="48" length="11" name="FILLER1" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="58" length="3" name="SI" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="60" length="5" name="REGCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="64" length="7" name="REGDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="70" length="8" name="EMAIL" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="77" length="9" name="HPNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="85" length="11" name="APPLYDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="95" length="11" name="CANCELDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SMSYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="EMAILYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SVCCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="REGDATETIME"
+					padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="AGRYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER2" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER3" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</tail>
+		</request>
+		<response repeat="false" repeatVariable="LENGTH"
+			transferType="VO" securityClass="false" path="d:/tmp/">
+			<header>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</header>
+			<body>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="22" name="SSN" padType="rpad"
+					padChar="*" encode="false" decode="false"></field>
+				<field start="38" length="4" name="NAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="41" length="8" name="MGTNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="48" length="11" name="FILLER1" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="58" length="3" name="SI" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="60" length="5" name="REGCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="64" length="7" name="REGDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="70" length="8" name="EMAIL" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="77" length="9" name="HPNO" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="85" length="11" name="APPLYDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="95" length="11" name="CANCELDATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SMSYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="EMAILYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="SVCCD" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="REGDATETIME"
+					padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="AGRYN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER2" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="11" length="11" name="FILLER3" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</body>
+			<tail>
+				<field start="0" length="1" name="GUBUN" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="1" length="10" name="SEQ" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="10" length="8" name="MEMCODE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="17" length="20" name="FILENAME" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="36" length="8" name="ODATE" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="43" length="2" name="VER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="44" length="10" name="LENGTH" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+				<field start="53" length="271" name="FILLER" padType="rpad"
+					padChar=" " encode="false" decode="false"></field>
+			</tail>
+		</response>
+	</message>
+</SET>

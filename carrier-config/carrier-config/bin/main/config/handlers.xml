@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+<handler handlerName="SampleHandler" 
+		 messageName="SampleMessage"
+         enable="true" 
+         handlerClass="com.kcb.id.comm.carrier.handler.impl.SampleHandlerImpl" 
+         businessClass="com.kcb.id.comm.carrier.service.impl.SampleServiceImpl"></handler>
+<handler handlerName="SampleHandler2" 
+		 messageName="SampleMessage2"
+         enable="true" 
+         handlerClass="com.kcb.id.comm.carrier.handler.impl.SampleHandlerImpl" 
+         businessClass="com.kcb.id.comm.carrier.service.impl.SampleServiceImpl"></handler>
+<handler handlerName="SampleHandler3" 
+		 messageName="SampleMessage3"
+         enable="true" 
+         handlerClass="com.kcb.id.comm.carrier.handler.impl.SampleHandlerImpl" 
+         businessClass="com.kcb.id.comm.carrier.service.impl.SampleServiceImpl"></handler>
+         
+</SET>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+<server serverName="SampleServer" 
+        ip="127.0.0.1" 
+        port="9004" 
+        enable="true" 
+        handlerName="SampleHandler"></server>
+<server serverName="SampleServer2" 
+        ip="127.0.0.1" 
+        port="9005" 
+        enable="true" 
+        handlerName="SampleHandler2"></server>
+<server serverName="SampleServer3" 
+        ip="127.0.0.1" 
+        port="9006" 
+        enable="true" 
+        handlerName="SampleHandler3"></server>
+                
+</SET>
