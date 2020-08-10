@@ -9,13 +9,13 @@ public class CypherImpl implements Cypher{
 
 	@Override
 	public String encode(String data) {
-		// TODO Auto-generated method stub
+		// 암호화
 		return null;
 	}
 
 	@Override
 	public String decode(String data) {
-		// TODO Auto-generated method stub
+		// 복호화
 		return null;
 	}
 
