@@ -6,7 +6,12 @@ plugins {
 
 group = 'com.kcb.id.comm'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+compileJava {
+    options.fork = true
+    options.forkOptions.javaHome = file('C:/Program Files/RedHat/java-11-openjdk-11.0.8-2')
+    targetCompatibility = 11
+    sourceCompatibility = 11
+}
 
 repositories {
 	mavenCentral()
