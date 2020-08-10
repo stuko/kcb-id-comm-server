@@ -76,6 +76,7 @@ public class SampleHandlerImpl implements Handler{
 			if(service == null) {
 				throw new Exception("NoServiceException");
 			}
+			
 			if(service.getType() == Type.JSON) {
 				Gson gson = new Gson();
 				responseMap = gson.fromJson((String)(service.call(parsedMsg.getRequestMessage().getBodyMap())),responseMap.getClass());
@@ -86,10 +87,18 @@ public class SampleHandlerImpl implements Handler{
 			}else {
 				responseMap = (Map<String,Object>)(service.call(parsedMsg.getRequestMessage().getBodyMap()));
 			}
+			
+			if(messageInfo.getForward()!=null && !"".equals(messageInfo.getForward())) {
+				// messageInfo.getForwardServer() 와 messageInfo.getForwardPort() 로 전문을 그대로 전송한다. 
+			}
+			
 			if(responseMap != null && responseMap.size() > 0) {
 				// header and tail is equal to Request Message
 				parsedMsg.getResponseMessage().setBodyValue(responseMap);
 			}
+			
+			
+			
 			Charset charset = Charset.defaultCharset();
 		    try {
 		    	ByteBuf b = NettyUtils.getMessage2ByteBuf(parsedMsg.getResponseMessage(), responseMap);

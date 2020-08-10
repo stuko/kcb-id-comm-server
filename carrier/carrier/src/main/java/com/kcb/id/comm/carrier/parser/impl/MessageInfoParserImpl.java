@@ -41,6 +41,9 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 			
 			logger.debug("Message root node's name is {} " , receiverInfo.getName());
 			receiverInfo.setForward(node.getAttributes().getNamedItem("forward") == null ? "" : node.getAttributes().getNamedItem("forward").getNodeValue());
+			receiverInfo.setForwardServer(node.getAttributes().getNamedItem("forwardServer") == null ? "" : node.getAttributes().getNamedItem("forwardServer").getNodeValue());
+			String sPort = node.getAttributes().getNamedItem("forwardPort") == null ? "" : node.getAttributes().getNamedItem("forwardPort").getNodeValue();
+			if(sPort != null && !"".equals(sPort)) receiverInfo.setForwardPort(Integer.parseInt(sPort));
 			logger.debug("Message root node's forward is {} " , receiverInfo.getForward());
 			NodeList subNodeList = node.getChildNodes();
 
