@@ -22,7 +22,7 @@ public class MessageInfoImpl implements Serializable, Cloneable, MessageInfo {
 	Map<String,Message> exceptionMessageMap = new HashMap<>();
 
 	String forward;
-	String forwardServer;
+	String forwardIp;
 	int  forwardPort;
 	String name;
 	
@@ -75,15 +75,17 @@ public class MessageInfoImpl implements Serializable, Cloneable, MessageInfo {
 		msg.setResponseMessage(this.getResponseMessage().newInstance());
 		msg.setName(this.getName());
 		msg.setForward(this.getForward());
+		msg.setForwardIp(this.getForwardIp());
+		msg.setForwardPort(this.getForwardPort());
 		return msg;
 	}
 
-	public String getForwardServer() {
-		return forwardServer;
+	public String getForwardIp() {
+		return forwardIp;
 	}
 
-	public void setForwardServer(String forwardServer) {
-		this.forwardServer = forwardServer;
+	public void setForwardIp(String forwardIp) {
+		this.forwardIp = forwardIp;
 	}
 
 	public int getForwardPort() {

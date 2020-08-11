@@ -10,9 +10,13 @@ public interface Message  extends SelfChecker{
 	
 	Message newInstance();
 	
-	Cypher getCypher();
+	String getEncoder();
 
-	void setCypher(Cypher cypher);
+	void setEncoder(String encoder);
+	
+	String getDecoder();
+
+	void setDecoder(String decoder);
 
 	void addBuffer(String data);
 

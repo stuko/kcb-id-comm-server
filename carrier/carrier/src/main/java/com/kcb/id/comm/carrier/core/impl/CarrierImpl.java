@@ -2,17 +2,17 @@ package com.kcb.id.comm.carrier.core.impl;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
@@ -25,8 +25,6 @@ import com.kcb.id.comm.carrier.loader.HandlerInfoLoader;
 import com.kcb.id.comm.carrier.loader.MessageInfoLoader;
 import com.kcb.id.comm.carrier.loader.ServerInfo;
 import com.kcb.id.comm.carrier.loader.ServerInfoLoader;
-import com.kcb.id.comm.carrier.service.Service;
-import com.kcb.id.comm.carrier.service.impl.APIClientCallerImpl;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -43,41 +41,74 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 public class CarrierImpl implements Carrier {
 
 	static Logger logger = LoggerFactory.getLogger(CarrierImpl.class);
+
+	/*
+	 * Monitoring 과 테스트를 위한 것.
+	 */
+	ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(5);
 	
+	/*
+	 * XML로 부터 여러 전문을 읽어서 MessageInfo 라는 객체에 채워주는 클래스 
+	 */
 	@Autowired
 	MessageInfoLoader messageInfoLoader;
+	/*
+	 * XML로 부터 여러 서버정보를 읽어서 ServerInfo 라는 객체에 채워주는 클래스 
+	 */
 	@Autowired
 	ServerInfoLoader serverInfoLoader;
+	/*
+	 * XML로 부터 여러 핸들러 정보를 읽어서 HandlerInfo 라는 객체에 채워주는 클래스 
+	 */
 	@Autowired
 	HandlerInfoLoader handlerInfoLoader;
 	
-	@Autowired
-    @Qualifier("CarrierConfigCaller")
-	Service carrierConfigCaller;
-	
+	/*
+	 * ServerInfo XML 파일을 읽어올 경로 application.yml에 정의됨
+	 */
 	@Value( "${carrier.path.server}" )
 	private String serverPath;
+	/*
+	 * MessageInfo XML 파일을 읽어올 경로 application.yml에 정의됨
+	 */
 	@Value( "${carrier.path.message}" )
 	private String messagePath;
+	/*
+	 * HandlerInfo XML 파일을 읽어올 경로 application.yml에 정의됨
+	 */
 	@Value( "${carrier.path.handler}" )
 	private String handlerPath;
 
+	/*
+	 * ServerInfo XML을 URL로 부터 읽어올 주소 application.yml에 정의됨
+	 */
 	@Value( "${carrier.url.server}" )
 	private String serverUrl;
+	/*
+	 * MessageInfo XML을 URL로 부터 읽어올 주소 application.yml에 정의됨
+	 */
 	@Value( "${carrier.url.message}" )
 	private String messageUrl;
+	/*
+	 * HandlerInfo XML을 URL로 부터 읽어올 주소 application.yml에 정의됨
+	 */
 	@Value( "${carrier.url.handler}" )
 	private String handlerUrl;
 	
+	/*
+	 * Netty로 실행한 서버들을 나중에 종료시키기 위해, 해당 워커를 맵에 저장하기 위한 클래스
+	 */
 	Map<String,EventLoopGroup> bossMap = new HashMap<>();
 	Map<String,EventLoopGroup> workerMap = new HashMap<>();
 	
 	int boss = 1, worker = 1;
 	
-	@Bean(name="CarrierConfigCaller")
-	public Service getCarrierConfigCaller() {
-		return new APIClientCallerImpl();
-	}
+	/*
+	 * 스프링의 어플리케이션 컨텍스트, 빈들을 참조하기 위한 용도
+	 */
+	@Autowired
+	private ApplicationContext context;
+	
 	public String getServerPath() {
 		return serverPath;
 	}
@@ -126,9 +157,14 @@ public class CarrierImpl implements Carrier {
 	public void setWorker(int worker) {
 		this.worker = worker;
 	}
+	
+	
+	/*
+	 * ServerInfo 정보를 가지고, Netty TCP 통신 서버를 실행 한다.
+	 */
 	public void start(ServerInfo server) {
-		EventLoopGroup bossGroup = new NioEventLoopGroup(); 
-		EventLoopGroup workerGroup = new NioEventLoopGroup();
+		EventLoopGroup bossGroup = new NioEventLoopGroup(this.getBoss()); 
+		EventLoopGroup workerGroup = new NioEventLoopGroup(this.getWorker());
 		try {
 			ServerBootstrap b = new ServerBootstrap(); 
 			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class) 
@@ -140,33 +176,27 @@ public class CarrierImpl implements Carrier {
 									public void onConnected(ChannelHandlerContext ctx) {
 										String handlerClass = getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getHandlerClass();
 										try {
-											Object object = Class.forName(handlerClass).getConstructor().newInstance();
+											Object object = context.getBean(handlerClass);
 											if(object != null) {
 												((Handler)object).onConnected(ctx
 														, getMessageInfoLoader().getMessageRepository()
 														, getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()));
 											}
-										} catch (InstantiationException | IllegalAccessException
-												| IllegalArgumentException | InvocationTargetException
-												| NoSuchMethodException | SecurityException
-												| ClassNotFoundException e) {
+										} catch (Exception e) {
 											logger.error(e.toString(),e);
 										}
 									}
 									public void onReceived(ChannelHandlerContext ctx, Object msg) {
 										String handlerClass = getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getHandlerClass();
 										try {
-											Object object = Class.forName(handlerClass).getConstructor().newInstance();
+											Object object = context.getBean(handlerClass);
 											if(object != null) {
 												((Handler)object).onReceived(ctx
 														, msg
 														, getMessageInfoLoader().getMessageRepository()
 														, getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()));
 											}
-										} catch (InstantiationException | IllegalAccessException
-												| IllegalArgumentException | InvocationTargetException
-												| NoSuchMethodException | SecurityException
-												| ClassNotFoundException e) {
+										} catch (Exception e) {
 											logger.error(e.toString(),e);
 										}
 										
@@ -189,6 +219,9 @@ public class CarrierImpl implements Carrier {
 			bossGroup.shutdownGracefully();
 		}
 	}
+	/*
+	 * ServerInfo 를 통해, Netty 통신 서버를 종료 한다.
+	 */
 	public void stop(ServerInfo server) {
 		this.getWorkerMap().get(server.getName()).shutdownGracefully();
 		this.getBossMap().get(server.getName()).shutdownGracefully();
@@ -226,6 +259,9 @@ public class CarrierImpl implements Carrier {
 	public void setWorkerMap(Map<String, EventLoopGroup> workerMap) {
 		this.workerMap = workerMap;
 	}
+	/*
+	 * XML 정보를 URL을 통해 가져올 경우 아래 메서드가 호출 된다.
+	 */
 	private InputStream selectInputStream(String url) {
 		if(url == null) return null;
 		String[] urls = url.split(",");
@@ -249,6 +285,7 @@ public class CarrierImpl implements Carrier {
 	public void startAll() {
 		if(this.getServerPath() != null && !"".equals(this.getServerPath().trim())) {
 			try {
+				logger.debug("Server xml path exists... {}", this.getServerPath());
 				this.getServerInfoLoader().setLoaderFile(ResourceUtils.getFile(this.getServerPath()));
 			} catch (FileNotFoundException e) {
 				logger.error(e.toString(),e);
@@ -263,6 +300,7 @@ public class CarrierImpl implements Carrier {
 		}
 		if(this.getMessagePath() != null && !"".equals(this.getMessagePath().trim())) {
 			try {
+				logger.debug("Message xml path exists... {}", this.getMessagePath());
 				this.getMessageInfoLoader().setLoaderFile(ResourceUtils.getFile(this.getMessagePath()));
 			} catch (FileNotFoundException e) {
 				logger.error(e.toString(),e);
@@ -277,6 +315,7 @@ public class CarrierImpl implements Carrier {
 		}
 		if(this.getHandlerPath() != null && !"".equals(this.getHandlerPath().trim())) {
 			try {
+				logger.debug("Handler xml path exists... {}", this.getHandlerPath());
 				this.getHandlerInfoLoader().setLoaderFile(ResourceUtils.getFile(this.getHandlerPath()));
 			} catch (FileNotFoundException e) {
 				logger.error(e.toString(),e);
@@ -306,11 +345,15 @@ public class CarrierImpl implements Carrier {
 			logger.error(e.toString(),e);
 		}
 	}
+	/*
+	 * 서버가 정상인지 확인 하기 위해,
+	 * 테스트 전문을 10초 간격으로 전송 한다.
+	 */
 	public void monitoring() {
 		new Thread(()->{
 			while(true) {
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(1000);
 					logger.info("Server Count : {}", getServerInfoLoader().getServerRepository().size());
 					logger.info("Handler Count : {}", getHandlerInfoLoader().getHandlerRepository().size());
 					logger.info("Message Count : {}", getMessageInfoLoader().getMessageRepository().size());
@@ -322,11 +365,14 @@ public class CarrierImpl implements Carrier {
 						logger.info("Message Name : {}", getHandlerInfoLoader().getHandlerRepository().get(s.getHandlerName()).getMessageName());
 					});
 					getServerInfoLoader().getServerRepository().forEach((n,s)->{
-						try {
-							NettyUtils.tcpTest(s.getIP(),s.getPort(),5000,getMessageInfoLoader().getMessageRepository().get(getHandlerInfoLoader().getHandlerRepository().get(s.getHandlerName()).getMessageName()).getRequestMessage());
-						} catch (Exception e) {
-							logger.error(e.toString(),e);
-						}
+						executor.submit(
+						  ()->{
+							try {
+								NettyUtils.tcpTest(s.getIP(),s.getPort(),5000,getMessageInfoLoader().getMessageRepository().get(getHandlerInfoLoader().getHandlerRepository().get(s.getHandlerName()).getMessageName()).getRequestMessage());
+							} catch (Exception e) {
+								logger.error(e.toString(),e);
+							}
+						  });
 					});
 				}catch(Exception e) {
 					logger.error(e.toString(),e);

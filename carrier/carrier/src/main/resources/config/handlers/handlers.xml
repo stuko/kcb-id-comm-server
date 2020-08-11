@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+<handler handlerName="ForwardHandler" 
+		 messageName="FirstMessage"
+         enable="true" 
+         handlerClass="nettyServerChannelHandlerImpl" 
+         businessClass=""></handler>
+         
+<handler handlerName="ReceiveHandler" 
+		 messageName="SecondMessage"
+         enable="true" 
+         handlerClass="nettyServerChannelHandlerImpl" 
+         businessClass=""></handler>
+         
+</SET>

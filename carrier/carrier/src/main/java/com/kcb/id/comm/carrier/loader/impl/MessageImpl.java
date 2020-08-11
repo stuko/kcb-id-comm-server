@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import com.kcb.id.comm.carrier.loader.Cypher;
 import com.kcb.id.comm.carrier.loader.Message;
@@ -18,9 +19,15 @@ public class MessageImpl implements Message {
 	
 	private static final long serialVersionUID = 1L;
 	static Logger logger = LoggerFactory.getLogger(MessageImpl.class);
-	
+
+	/*
+	 * 스프링의 어플리케이션 컨텍스트, 빈들을 참조하기 위한 용도
+	 */
 	@Autowired
-	Cypher cypher;
+	private ApplicationContext context;
+	
+	String encoder;
+	String decoder;
 
 	Field[] header;
 	Field[] body;
@@ -45,15 +52,21 @@ public class MessageImpl implements Message {
 	public MessageImpl() {
 		messageBuffer = new StringBuilder();
 	}
-
-	@Override
-	public Cypher getCypher() {
-		return cypher;
+	
+	public String getEncoder() {
+		return encoder;
 	}
 
-	@Override
-	public void setCypher(Cypher cypher) {
-		this.cypher = cypher;
+	public void setEncoder(String encoder) {
+		this.encoder = encoder;
+	}
+
+	public String getDecoder() {
+		return decoder;
+	}
+
+	public void setDecoder(String decoder) {
+		this.decoder = decoder;
 	}
 
 	@Override
@@ -256,24 +269,36 @@ public class MessageImpl implements Message {
 	public ByteBuf toByteBuf() {
 		ByteBuf buf = Unpooled.buffer(256);
 
-		for (int i = 0; i < header.length; i++) {
-			Field f = header[i];
-			buf.writeBytes(((String) f.getValue(0)).getBytes());
-		}
-		int repeatCount = 1;
-		if ("true".equals(repeat)) {
-			repeatCount = Integer.parseInt(repeatVariable);
-		}
-		for (int i = 0; i < repeatCount; i++) {
-			for (int j = 0; j < body.length; j++) {
-				Field f = body[j];
-				buf.writeBytes(((String) f.getValue(i)).getBytes());
+		if(header != null) {
+			for (int i = 0; i < header.length; i++) {
+				Field f = header[i];
+				logger.debug("Header's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes()));
+				buf.writeBytes(f.getValueBytes());
 			}
 		}
-		for (int i = 0; i < tail.length; i++) {
-			Field f = tail[i];
-			buf.writeBytes(((String) f.getValue(0)).getBytes());
+		if(body != null) {
+			int repeatCount = 1;
+			if ("true".equals(repeat)) {
+				repeatCount = Integer.parseInt(repeatVariable);
+			}
+			for (int i = 0; i < repeatCount; i++) {
+				for (int j = 0; j < body.length; j++) {
+					Field f = body[j];
+					logger.debug("Body's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes()));
+					buf.writeBytes(f.getValueBytes());
+				}
+			}
 		}
+		if(tail != null) {
+			for (int i = 0; i < tail.length; i++) {
+				Field f = tail[i];
+				logger.debug("Tail's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes()));
+				buf.writeBytes(f.getValueBytes());
+			}
+		}
+		byte[] b = new byte[buf.readableBytes()];
+		buf.duplicate().readBytes(b);
+		logger.debug("FINAL : [{}]", new String(b));
 		return buf;
 	}
 
@@ -297,11 +322,9 @@ public class MessageImpl implements Message {
 		if (repeatCount > 1) {
 			Map<String,Object>[] bodyMap = getBodyMap(repeatCount);
 			return bodyMap;
-			// rootMap.put("body",bodyMap);
 		} else {
 			Map<String,Object> bodyMap = getBodyMap();
 			return bodyMap;
-			// rootMap.put("body",bodyMap);
 		}
 	}
 
@@ -421,19 +444,23 @@ public class MessageImpl implements Message {
 
 	@Override
 	public Field encodeOrDecode(Field f) throws Exception {
-		if ("true".equals(f.getEncode()))
-			f.setValue(this.getCypher().encode((String) f.getValue(0)));
-		if ("true".equals(f.getDecode()))
-			f.setValue(this.getCypher().decode((String) f.getValue(0)));
-		return f;
+		return this.encodeOrDecode(f, 0);
 	}
 
 	@Override
 	public Field encodeOrDecode(Field f, int idx) throws Exception {
-		if ("true".equals(f.getEncode()))
-			f.setValue(idx, this.getCypher().encode((String) f.getValue(idx)));
-		if ("true".equals(f.getDecode()))
-			f.setValue(idx, this.getCypher().decode((String) f.getValue(idx)));
+		Object object = context.getBean(this.getEncoder());
+		if(object != null) {
+			Cypher cypher = (Cypher)object;
+			if ("true".equals(f.getEncode()))
+				f.setValue(idx, cypher.encode((String) f.getValue(idx)));
+		}
+		object = context.getBean(this.getDecoder());
+		if(object != null) {
+			Cypher cypher = (Cypher)object;
+			if ("true".equals(f.getDecode()))
+				f.setValue(idx, cypher.decode((String) f.getValue(idx)));
+		}
 		return f;
 	}
 
@@ -479,6 +506,7 @@ public class MessageImpl implements Message {
 			msg.getHeader()[i].setPadChar(header[i].getPadChar());
 			msg.getHeader()[i].setEncode(header[i].getEncode());
 			msg.getHeader()[i].setDecode(header[i].getDecode());
+			msg.getHeader()[i].setValue((String)header[i].getValue(0));
 		}
 		msg.setBody(new Field[body.length]);
 		for(int i = 0; i < body.length; i++) {
@@ -490,6 +518,7 @@ public class MessageImpl implements Message {
 			msg.getBody()[i].setPadChar(body[i].getPadChar());
 			msg.getBody()[i].setEncode(body[i].getEncode());
 			msg.getBody()[i].setDecode(body[i].getDecode());
+			msg.getBody()[i].setValue((String)body[i].getValue(0));
 		}
 		msg.setTail(new Field[tail.length]);
 		for(int i = 0; i < tail.length; i++) {
@@ -501,6 +530,7 @@ public class MessageImpl implements Message {
 			msg.getTail()[i].setPadChar(tail[i].getPadChar());
 			msg.getTail()[i].setEncode(tail[i].getEncode());
 			msg.getTail()[i].setDecode(tail[i].getDecode());
+			msg.getTail()[i].setValue((String)tail[i].getValue(0));
 		}
 		return msg;
 	}

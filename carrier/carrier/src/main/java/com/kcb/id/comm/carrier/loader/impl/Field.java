@@ -5,10 +5,15 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Field implements Serializable {
+	
+	static Logger logger = LoggerFactory.getLogger(Field.class);
+	
 	private static final long serialVersionUID = 1L;
 	String start;
 	String length;
@@ -229,13 +234,21 @@ public class Field implements Serializable {
 	
 	public byte[] getValueBytes() {
 		byte[] t = this.getBytes();
-		System.arraycopy(((String)this.getValue(0)).getBytes(), 0, t, 0, t.length);
+		if(this.getValue(0) == null) {
+			return t; 
+		}
+		byte[] src = ((String)this.getValue(0)).getBytes();
+		int copyLen = src.length > t.length ? t.length : src.length;
+		System.arraycopy(src , 0, t, 0, copyLen);
 		return t;
 	}
 	
 	public byte[] getValueBytes(String value) {
 		byte[] t = this.getBytes();
-		System.arraycopy(value.getBytes(), 0, t, 0, t.length);
+		if(value == null) return t;
+		byte[] src = value.getBytes();
+		int copyLen = src.length > t.length ? t.length : src.length;
+		System.arraycopy(src, 0, t, 0, copyLen);
 		return t;
 	}
 

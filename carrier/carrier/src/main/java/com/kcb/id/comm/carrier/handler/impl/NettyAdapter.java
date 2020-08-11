@@ -7,14 +7,16 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
+/*
+ * Netty에서 사용할 채널 어답터
+ * 클라이언트에서 연결이 시도될 때 생성되어 사용되는 클래스
+ */
 public abstract class NettyAdapter extends ChannelInboundHandlerAdapter {
 
 	static Logger logger = LoggerFactory.getLogger(NettyAdapter.class);
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		// When connected.... called.
-		// ByteBuf messageBuffer = Unpooled.buffer();
 		try {
 			this.onConnected(ctx);
 		} catch (Exception e) {
@@ -36,7 +38,7 @@ public abstract class NettyAdapter extends ChannelInboundHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (4)
 		logger.error(cause.toString(), cause);
-		ctx.close();
+		if(ctx != null)ctx.close();
 	}
 
 	@Override

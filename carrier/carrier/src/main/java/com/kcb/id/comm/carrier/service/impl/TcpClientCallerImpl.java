@@ -4,10 +4,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.kcb.id.comm.carrier.service.Service;
+import com.kcb.id.comm.carrier.service.IService;
 
 @Component
-public class TcpClientCallerImpl implements Service{
+public class TcpClientCallerImpl implements IService{
 
 	Type type = Type.TCP;
 	

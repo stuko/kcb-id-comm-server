@@ -7,12 +7,6 @@ public interface MessageInfo{
 	String getName();
 	void setName(String name);
 	
-	void setForwardServer(String serverIp);
-	String getForwardServer();
-	
-	void setForwardPort(int port);
-	int getForwardPort();
-
 	Message getRequestMessage();
 	void setRequestMessage(Message requestMessage);
 	
@@ -26,4 +20,10 @@ public interface MessageInfo{
 	String getForward();
 
 	MessageInfo newInstance();
+	
+	void setForwardIp(String ip);
+	String getForwardIp();
+	
+	void setForwardPort(int port);
+	int getForwardPort();
 }

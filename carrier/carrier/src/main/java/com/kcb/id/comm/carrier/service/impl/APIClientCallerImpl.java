@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
-import com.kcb.id.comm.carrier.service.Service;
+import com.kcb.id.comm.carrier.service.IService;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -19,7 +19,7 @@ import okhttp3.Response;
 
 @Configuration
 @Component
-public class APIClientCallerImpl implements Service{
+public class APIClientCallerImpl implements IService{
 
 	static Logger logger = LoggerFactory.getLogger(APIClientCallerImpl.class);
 	

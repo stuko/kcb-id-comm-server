@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,7 +33,6 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 				continue;
 			MessageInfo receiverInfo = new MessageInfoImpl();
 			Node node = setNodeList.item(i);
-			logger.debug("Message root node name is {} " , node.getNodeName());
 			receiverInfo.setName(node.getAttributes().getNamedItem("name") == null ? "" : node.getAttributes().getNamedItem("name").getNodeValue());
 			
 			if (receiverInfo.getName() == null) {
@@ -39,14 +40,12 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 				return null;
 			}
 			
-			logger.debug("Message root node's name is {} " , receiverInfo.getName());
 			receiverInfo.setForward(node.getAttributes().getNamedItem("forward") == null ? "" : node.getAttributes().getNamedItem("forward").getNodeValue());
-			receiverInfo.setForwardServer(node.getAttributes().getNamedItem("forwardServer") == null ? "" : node.getAttributes().getNamedItem("forwardServer").getNodeValue());
+			receiverInfo.setForwardIp(node.getAttributes().getNamedItem("forwardIp") == null ? "" : node.getAttributes().getNamedItem("forwardIp").getNodeValue());
 			String sPort = node.getAttributes().getNamedItem("forwardPort") == null ? "" : node.getAttributes().getNamedItem("forwardPort").getNodeValue();
 			if(sPort != null && !"".equals(sPort)) receiverInfo.setForwardPort(Integer.parseInt(sPort));
-			logger.debug("Message root node's forward is {} " , receiverInfo.getForward());
+			
 			NodeList subNodeList = node.getChildNodes();
-
 			for (int j = 0; j < subNodeList.getLength(); j++) {
 				if (subNodeList.item(j).getNodeType() == Node.TEXT_NODE)
 					continue;
@@ -64,7 +63,6 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 				}
 			}
 			if (receiverInfo.getRequestMessage().checkMe()) {
-				logger.debug("#### Message's forward in parsing... : " , receiverInfo.getForward());
 				list.add(receiverInfo);
 			}
 		}
@@ -79,8 +77,10 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 				: subNodeList.item(j).getAttributes().getNamedItem("repeat").getNodeValue();
 		String repeat_variable = subNodeList.item(j).getAttributes().getNamedItem("repeatVariable") == null ? ""
 				: subNodeList.item(j).getAttributes().getNamedItem("repeatVariable").getNodeValue();
-		String security_class = subNodeList.item(j).getAttributes().getNamedItem("securityClass") == null ? "false"
-				: subNodeList.item(j).getAttributes().getNamedItem("securityClass").getNodeValue();
+		String encoder = subNodeList.item(j).getAttributes().getNamedItem("encoder") == null ? "false"
+				: subNodeList.item(j).getAttributes().getNamedItem("encoder").getNodeValue();
+		String decoder = subNodeList.item(j).getAttributes().getNamedItem("decoder") == null ? "false"
+				: subNodeList.item(j).getAttributes().getNamedItem("decoder").getNodeValue();
 		String path = subNodeList.item(j).getAttributes().getNamedItem("path") == null ? ""
 				: subNodeList.item(j).getAttributes().getNamedItem("path").getNodeValue();
 		if (subNodeList.item(j).getAttributes().getNamedItem("destinationIp") != null
@@ -93,23 +93,18 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 		parsedMsg.setRepeat(repeat);
 		parsedMsg.setRepeatVariable(repeat_variable);
 
-		if (security_class != null && !"false".equals(security_class)) {
-			try {
-				Cypher cypher = (Cypher) Class.forName(security_class).getDeclaredConstructor().newInstance();
-				parsedMsg.setCypher(cypher);
-			} catch (Exception e) {
-				logger.error(e.toString(), e);
-				return null;
-			}
+		if (encoder != null && !"false".equals(encoder)) {
+			parsedMsg.setEncoder(encoder);
+		}
+		if (decoder != null && !"false".equals(decoder)) {
+			parsedMsg.setDecoder(decoder);
 		}
 		parsedMsg.setPath(path);
 
 		NodeList subSubNodeList = subNodeList.item(j).getChildNodes();
-		logger.debug("{}'s SubNode count is {} ", subNodeList.item(j).getNodeName(), subSubNodeList.getLength());
 		for (int k = 0; k < subSubNodeList.getLength(); k++) {
 			if (subSubNodeList.item(j) == null)
 				continue;
-			logger.debug("Sub's SubNode name is {} ", subSubNodeList.item(j).getNodeName());
 			if (subSubNodeList.item(j).getNodeType() == Node.TEXT_NODE)
 				continue;
 			Field[] fields = null;

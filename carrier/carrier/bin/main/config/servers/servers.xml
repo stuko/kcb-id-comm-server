@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="euc-kr"?>
 <SET>
-<server serverName="SampleServer" 
+<server serverName="Server1" 
         ip="127.0.0.1" 
         port="9004" 
         enable="true" 
-        handlerName="SampleHandler"></server>
-<server serverName="SampleServer" 
+        handlerName="ForwardHandler"></server>
+        
+<server serverName="Server2" 
         ip="127.0.0.1" 
         port="9005" 
         enable="true" 
-        handlerName="SampleHandler"></server>
+        handlerName="ReceiveHandler"></server>
                 
 </SET>
