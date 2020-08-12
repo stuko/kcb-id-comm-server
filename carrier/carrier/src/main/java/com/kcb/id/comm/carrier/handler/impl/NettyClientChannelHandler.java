@@ -58,6 +58,7 @@ public class NettyClientChannelHandler extends SimpleChannelInboundHandler {
 		if(request != null)messageBuffer.writeBytes(request.getBytes());
 		else messageBuffer.writeBytes(requestBytes);
 	    ctx.writeAndFlush(messageBuffer);
+	    if(messageBuffer != null && messageBuffer.refCnt() != 0) messageBuffer.release();
 	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) {
@@ -68,7 +69,7 @@ public class NettyClientChannelHandler extends SimpleChannelInboundHandler {
 	protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
 		this.setResponseByteBuf((ByteBuf)msg);
 		byte[] bytes = new byte[this.getResponseByteBuf().readableBytes()];
-		this.getResponseByteBuf().duplicate().readBytes(bytes);
+		ByteBuf derived = this.getResponseByteBuf().readBytes(bytes);
 		this.setResponseBytes(bytes);
 		this.setResponse(this.getResponseByteBuf().toString(CharsetUtil.UTF_8));
 	}

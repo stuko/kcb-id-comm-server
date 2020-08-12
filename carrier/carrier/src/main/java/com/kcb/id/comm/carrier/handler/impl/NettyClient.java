@@ -22,7 +22,8 @@ public class NettyClient {
 	public byte[] getByte(String ip, int port, byte[] msg) {
 		ByteBuf buf = this.send(ip, port, msg);
 		byte[] bytes = new byte[buf.readableBytes()];
-		buf.duplicate().readBytes(bytes);
+		buf.readBytes(bytes);
+		if(buf != null && buf.refCnt() != 0) buf.release();
 		return bytes;
 	}
 

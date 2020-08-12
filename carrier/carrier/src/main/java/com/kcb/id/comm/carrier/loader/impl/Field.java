@@ -15,7 +15,6 @@ public class Field implements Serializable {
 	static Logger logger = LoggerFactory.getLogger(Field.class);
 	
 	private static final long serialVersionUID = 1L;
-	String start;
 	String length;
 	String name;
 	List<Object> value;
@@ -39,14 +38,6 @@ public class Field implements Serializable {
 
 	public void setCharType(String charType) {
 		this.charType = charType;
-	}
-
-	public String getStart() {
-		return start;
-	}
-
-	public void setStart(String start) {
-		this.start = start;
 	}
 
 	public String getLength() {
@@ -225,7 +216,7 @@ public class Field implements Serializable {
 	}
 
 	public String toRaw() {
-		return this.getName() + " " + this.getStart() + " " + this.getEncode();
+		return this.getName() + " " + this.getLength() + " " + this.getEncode();
 	}
 	
 	public byte[] getBytes() {
@@ -233,11 +224,15 @@ public class Field implements Serializable {
 	}
 	
 	public byte[] getValueBytes() {
+		return this.getValueBytes(0);
+	}
+
+	public byte[] getValueBytes(int idx) {
 		byte[] t = this.getBytes();
-		if(this.getValue(0) == null) {
+		if(this.getValue(idx) == null) {
 			return t; 
 		}
-		byte[] src = ((String)this.getValue(0)).getBytes();
+		byte[] src = ((String)this.getValue(idx)).getBytes();
 		int copyLen = src.length > t.length ? t.length : src.length;
 		System.arraycopy(src , 0, t, 0, copyLen);
 		return t;

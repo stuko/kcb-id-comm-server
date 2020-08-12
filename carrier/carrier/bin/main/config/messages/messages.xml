@@ -3,86 +3,99 @@
 	<message name="FirstMessage" forward="SecondMessage"  forwardIp="127.0.0.1" forwardPort="9005">
 		<request repeat="false"	repeatVariable="LENGTH" encoder="false" decoder="false">
 			<header>
-				<field start="0" length="1" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="X"></field>
-				<field start="1" length="10" name="LENGTH" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="10" name="KEY" padType="rpad" padChar=" " encode="false" decode="false" value=""></field>
+				<field length="1" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="X"></field>
+				<field length="10" name="LENGTH" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</header>
 			<body>
-				<field start="0" length="22" name="SSN" padType="rpad"	padChar="#" encode="false" decode="false"></field>
-				<field start="21" length="22" name="SSN2" padType="rpad"	padChar="#" encode="false" decode="false"></field>
+				<field length="22" name="SSN" padType="rpad"	padChar="#" encode="false" decode="false"></field>
+				<field length="22" name="SSN2" padType="rpad"	padChar="#" encode="false" decode="false"></field>
 			</body>
 			<tail>
-				<field start="0" length="271" name="FILLER" padType="rpad"	padChar=" " encode="false" decode="false"></field>
+				<field length="271" name="FILLER" padType="rpad"	padChar=" " encode="false" decode="false"></field>
 			</tail>
 		</request>
 		<response repeat="false" repeatVariable="LENGTH" encoder="false" decoder="false">
 			<header>
-				<field start="0" length="1" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false"></field>
-				<field start="1" length="8" name="ODATE" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="1" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="8" name="ODATE" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</header>
 			<body>
-				<field start="0" length="4" name="NAME" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="4" name="NAME" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</body>
 			<tail>
-				<field start="0" length="8" name="MEMCODE" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="8" name="MEMCODE" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</tail>
 		</response>
 		<error name="NoServiceException">
 			<header>
-				<field start="0" length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="S001"></field>
+				<field length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="S001"></field>
 			</header>
 			<body>
-				<field start="0" length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
+				<field length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
 			</body>
 			<tail>
-				<field start="0" length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
+				<field length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
 			</tail>
 		</error>
 		<error name="NullPointerException">
 			<header>
-				<field start="0" length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="S002"></field>
+				<field length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="S002"></field>
 			</header>
 			<body>
-				<field start="0" length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
+				<field length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
 			</body>
 			<tail>
-				<field start="0" length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
+				<field length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
+			</tail>
+		</error>
+		<error name="NoEncoderOrDecoderException">
+			<header>
+				<field length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="E002"></field>
+			</header>
+			<body>
+				<field length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
+			</body>
+			<tail>
+				<field length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
 			</tail>
 		</error>
 		<error name="Exception">
 			<header>
-				<field start="0" length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="S003"></field>
+				<field length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="S003"></field>
 			</header>
 			<body>
-				<field start="0" length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
+				<field length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
 			</body>
 			<tail>
-				<field start="0" length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
+				<field length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
 			</tail>
 		</error>
 	</message>
 	<message name="SecondMessage">
 		<request repeat="false" repeatVariable="LENGTH" encoder="false" decoder="false">
 			<header>
-				<field start="0" length="1" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="G"></field>
+				<field length="10" name="KEY" padType="rpad" padChar=" " encode="false" decode="false" value=""></field>
+				<field length="1" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="G"></field>
 			</header>
 			<body>
-				<field start="0" length="22" name="SSN" padType="rpad" padChar=" " encode="false" decode="false"></field>
-				<field start="22" length="8" name="EMAIL" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="22" name="SSN" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="8" name="EMAIL" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</body>
 			<tail>
-				<field start="0" length="2" name="VER" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="2" name="VER" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</tail>
 		</request>
 		<response repeat="false" repeatVariable="LENGTH" encoder="false" decoder="false">
 			<header>
-				<field start="0" length="1" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="1" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</header>
 			<body>
-				<field start="0" length="4" name="NAME" padType="rpad" padChar=" " encode="false" decode="false"></field>
-				<field start="3" length="11" name="FILLER3" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="4" name="NAME" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="11" name="FILLER3" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</body>
 			<tail>
-				<field start="0" length="8" name="MEMCODE" padType="rpad" padChar=" " encode="false" decode="false"></field>
+				<field length="8" name="MEMCODE" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</tail>
 		</response>
 	</message>

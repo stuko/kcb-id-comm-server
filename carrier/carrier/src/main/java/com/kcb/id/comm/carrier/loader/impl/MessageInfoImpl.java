@@ -73,6 +73,9 @@ public class MessageInfoImpl implements Serializable, Cloneable, MessageInfo {
 		MessageInfo msg = new MessageInfoImpl();
 		msg.setRequestMessage(this.getRequestMessage().newInstance());		
 		msg.setResponseMessage(this.getResponseMessage().newInstance());
+		this.getExceptionMessageMap().forEach((k,v)->{
+			msg.getExceptionMessageMap().put(k,v.newInstance());
+		});
 		msg.setName(this.getName());
 		msg.setForward(this.getForward());
 		msg.setForwardIp(this.getForwardIp());

@@ -3,6 +3,7 @@ package com.kcb.id.comm.carrier.handler.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -31,7 +32,9 @@ public abstract class NettyAdapter extends ChannelInboundHandlerAdapter {
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 		} finally {
-			try{ReferenceCountUtil.release(msg);}catch(Exception e) {}
+			try{
+				if(msg != null && ((ByteBuf)msg).refCnt() != 0)ReferenceCountUtil.release(msg);
+			}catch(Exception e) {}
 		}
 	}
 
@@ -43,7 +46,7 @@ public abstract class NettyAdapter extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-		ctx.flush();
+		// ctx.flush();
 	}
 
 	public abstract void onConnected(ChannelHandlerContext ctx);

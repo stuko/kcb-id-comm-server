@@ -5,14 +5,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.kcb.id.comm.carrier.loader.Cypher;
 import com.kcb.id.comm.carrier.loader.Message;
 import com.kcb.id.comm.carrier.loader.MessageInfo;
 import com.kcb.id.comm.carrier.loader.impl.Field;
@@ -138,7 +135,6 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 		for (int l = 0; l < subSubSubNodeList.getLength(); l++) {
 			Node subSubSubSubNode = subSubSubNodeList.item(l);
 			fields[l] = new Field();
-			fields[l].setStart(subSubSubSubNode.getAttributes().getNamedItem("start").getNodeValue());
 			fields[l].setLength(subSubSubSubNode.getAttributes().getNamedItem("length").getNodeValue());
 			fields[l].setName(subSubSubSubNode.getAttributes().getNamedItem("name").getNodeValue());
 			if (subSubSubSubNode.getAttributes().getNamedItem("padType") != null) {

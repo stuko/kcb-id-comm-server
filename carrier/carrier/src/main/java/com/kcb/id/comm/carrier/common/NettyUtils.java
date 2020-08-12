@@ -1,8 +1,9 @@
 package com.kcb.id.comm.carrier.common;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -14,15 +15,8 @@ import org.slf4j.LoggerFactory;
 import com.kcb.id.comm.carrier.loader.Message;
 import com.kcb.id.comm.carrier.loader.impl.Field;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 
 /*
  * Netty 관련한 유틸리티 클래스
@@ -39,6 +33,10 @@ public class NettyUtils {
 			"C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
 			"X", "Y", "Z" };
 
+	public static void releaseBuf(ByteBuf byteBuf) {
+		
+	}
+	
 	/*
 	 * 현재 날짜를 입력한 포맷으로 보여 주는 메서드
 	 */
@@ -47,6 +45,7 @@ public class NettyUtils {
 		return sdf.format(new java.util.Date(System.currentTimeMillis()));
 	}
 
+	
 	/*
 	 * ID 생성기
 	 */
@@ -196,29 +195,35 @@ public class NettyUtils {
 	 */
 	public static void tcpTest(String host, int port, int timeout, Message message) throws Exception {
 		Socket socket = null;
-		OutputStream os = null;
-		InputStream is = null;
+		OutputStream o = null;
+		InputStream i = null;
+		BufferedOutputStream os = null;
+		BufferedInputStream is = null;
 		StringBuffer sb = new StringBuffer();
-
+		String key = "K" + (int)(Math.random()*100000000);
 		try {
+			long start = System.currentTimeMillis();
 			String msg = getTestMessage(message);
-			logger.debug("Test[{}:{}] request message : {}" ,host, port, msg);
-			logger.debug("####################################################");
-			logger.debug("TCP TEST REQUEST");
-			logger.debug("####################################################");
-			logger.debug("request message : [{}]" , msg);
-			logger.debug("####################################################");			
+			logger.info("####################################################");
+			logger.info("Test[{}:{}] request message : {}" ,host, port, msg);
+			logger.info("####################################################");
+			logger.info("TCP TEST REQUEST");
+			logger.info("####################################################");
+			logger.info("request message : [{}] -> [{}]" , key, msg);
+			logger.info("####################################################");			
 			
 			socket = new Socket(host, port);
 			socket.setSoTimeout(timeout);
-			os = socket.getOutputStream();
-			is = socket.getInputStream();
+			o = socket.getOutputStream();
+			i = socket.getInputStream();
+			is = new BufferedInputStream(i);
+			os = new BufferedOutputStream(o);
 			os.write(msg.getBytes());
 			os.flush();
 			byte[] data = new byte[256];
 			int len = 0;
 			while ((len = is.read(data)) > 0) {
-				logger.debug("read byte is {}", len);
+				logger.info("read byte is {}", len);
 				byte[] readBuffer = new byte[len];
 				System.arraycopy(data, 0, readBuffer, 0, len);
 				sb.append(new String(readBuffer));
@@ -229,13 +234,15 @@ public class NettyUtils {
 			os = null;
 			is = null;
 			socket = null;
-			logger.debug("####################################################");
-			logger.debug("TCP TEST RESULT");
-			logger.debug("####################################################");
-			logger.debug("response message : [{}]" , sb.toString());
-			logger.debug("####################################################");			
+			logger.info("####################################################");
+			logger.info("TCP TEST RESULT");
+			logger.info("####################################################");
+			logger.info("response message : [{}] -> [{}] [{}]" ,key, (System.currentTimeMillis()-start)+" (msec)"  , sb.toString());
+			logger.info("####################################################");			
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(e.toString().indexOf("SocketTimeoutException") >= 0) {
+				logger.info("error message : [{}] " ,key);
+			}
 		} finally {
 			try {
 				if (os != null)

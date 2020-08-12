@@ -1,5 +1,6 @@
 package com.kcb.id.comm.carrier.loader.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -272,6 +273,12 @@ public class MessageImpl implements Message {
 		if(header != null) {
 			for (int i = 0; i < header.length; i++) {
 				Field f = header[i];
+				try {
+					f.toPadding();
+					encodeOrDecode(f);
+				} catch (Exception e) {
+					logger.error(e.toString(),e);
+				}
 				logger.debug("Header's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes()));
 				buf.writeBytes(f.getValueBytes());
 			}
@@ -284,20 +291,31 @@ public class MessageImpl implements Message {
 			for (int i = 0; i < repeatCount; i++) {
 				for (int j = 0; j < body.length; j++) {
 					Field f = body[j];
-					logger.debug("Body's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes()));
-					buf.writeBytes(f.getValueBytes());
+					try {
+						f.toPadding();
+						encodeOrDecode(f,i);
+					} catch (Exception e) {
+						logger.error(e.toString(),e);
+					}
+					logger.debug("Body's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes(i)));
+					buf.writeBytes(f.getValueBytes(i));
 				}
 			}
 		}
 		if(tail != null) {
 			for (int i = 0; i < tail.length; i++) {
 				Field f = tail[i];
+				try {
+					f.toPadding();
+				} catch (Exception e) {
+					logger.error(e.toString(),e);
+				}
 				logger.debug("Tail's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes()));
 				buf.writeBytes(f.getValueBytes());
 			}
 		}
 		byte[] b = new byte[buf.readableBytes()];
-		buf.duplicate().readBytes(b);
+		buf.readBytes(b);
 		logger.debug("FINAL : [{}]", new String(b));
 		return buf;
 	}
@@ -449,17 +467,25 @@ public class MessageImpl implements Message {
 
 	@Override
 	public Field encodeOrDecode(Field f, int idx) throws Exception {
-		Object object = context.getBean(this.getEncoder());
-		if(object != null) {
-			Cypher cypher = (Cypher)object;
-			if ("true".equals(f.getEncode()))
-				f.setValue(idx, cypher.encode((String) f.getValue(idx)));
-		}
-		object = context.getBean(this.getDecoder());
-		if(object != null) {
-			Cypher cypher = (Cypher)object;
-			if ("true".equals(f.getDecode()))
-				f.setValue(idx, cypher.decode((String) f.getValue(idx)));
+		try {
+			if("true".equals(this.getEncoder())) {
+				Object object = context.getBean(this.getEncoder());
+				if(object != null) {
+					Cypher cypher = (Cypher)object;
+					if ("true".equals(f.getEncode()))
+						f.setValue(idx, cypher.encode((String) f.getValue(idx)));
+				}
+			}
+			if("true".equals(this.getDecoder())) {
+				Object object = context.getBean(this.getDecoder());
+				if(object != null) {
+					Cypher cypher = (Cypher)object;
+					if ("true".equals(f.getDecode()))
+						f.setValue(idx, cypher.decode((String) f.getValue(idx)));
+				}
+			}
+		}catch(Exception e) {
+			throw new Exception("NoEncoderOrDecoderException",e);
 		}
 		return f;
 	}
@@ -496,41 +522,44 @@ public class MessageImpl implements Message {
 		Message msg = new MessageImpl();
 		msg.setRepeat(this.getRepeat());
 		msg.setRepeatVariable(this.getRepeatVariable());
-		msg.setHeader(new Field[header.length]);
-		for(int i = 0; i < header.length; i++) {
-			msg.getHeader()[i] = new Field();
-			msg.getHeader()[i].setName(header[i].getName());
-			msg.getHeader()[i].setLength(header[i].getLength());
-			msg.getHeader()[i].setStart(header[i].getStart());
-			msg.getHeader()[i].setPadType(header[i].getPadType());
-			msg.getHeader()[i].setPadChar(header[i].getPadChar());
-			msg.getHeader()[i].setEncode(header[i].getEncode());
-			msg.getHeader()[i].setDecode(header[i].getDecode());
-			msg.getHeader()[i].setValue((String)header[i].getValue(0));
+		if(header != null) {
+			msg.setHeader(new Field[header.length]);
+			for(int i = 0; i < header.length; i++) {
+				msg.getHeader()[i] = new Field();
+				msg.getHeader()[i].setName(header[i].getName());
+				msg.getHeader()[i].setLength(header[i].getLength());
+				msg.getHeader()[i].setPadType(header[i].getPadType());
+				msg.getHeader()[i].setPadChar(header[i].getPadChar());
+				msg.getHeader()[i].setEncode(header[i].getEncode());
+				msg.getHeader()[i].setDecode(header[i].getDecode());
+				msg.getHeader()[i].setValue((String)header[i].getValue(0));
+			}
 		}
-		msg.setBody(new Field[body.length]);
-		for(int i = 0; i < body.length; i++) {
-			msg.getBody()[i] = new Field();
-			msg.getBody()[i].setName(body[i].getName());
-			msg.getBody()[i].setLength(body[i].getLength());
-			msg.getBody()[i].setStart(body[i].getStart());
-			msg.getBody()[i].setPadType(body[i].getPadType());
-			msg.getBody()[i].setPadChar(body[i].getPadChar());
-			msg.getBody()[i].setEncode(body[i].getEncode());
-			msg.getBody()[i].setDecode(body[i].getDecode());
-			msg.getBody()[i].setValue((String)body[i].getValue(0));
+		if(body != null) {
+			msg.setBody(new Field[body.length]);
+			for(int i = 0; i < body.length; i++) {
+				msg.getBody()[i] = new Field();
+				msg.getBody()[i].setName(body[i].getName());
+				msg.getBody()[i].setLength(body[i].getLength());
+				msg.getBody()[i].setPadType(body[i].getPadType());
+				msg.getBody()[i].setPadChar(body[i].getPadChar());
+				msg.getBody()[i].setEncode(body[i].getEncode());
+				msg.getBody()[i].setDecode(body[i].getDecode());
+				msg.getBody()[i].setValue((String)body[i].getValue(0));
+			}
 		}
-		msg.setTail(new Field[tail.length]);
-		for(int i = 0; i < tail.length; i++) {
-			msg.getTail()[i] = new Field();
-			msg.getTail()[i].setName(tail[i].getName());
-			msg.getTail()[i].setLength(tail[i].getLength());
-			msg.getTail()[i].setStart(tail[i].getStart());
-			msg.getTail()[i].setPadType(tail[i].getPadType());
-			msg.getTail()[i].setPadChar(tail[i].getPadChar());
-			msg.getTail()[i].setEncode(tail[i].getEncode());
-			msg.getTail()[i].setDecode(tail[i].getDecode());
-			msg.getTail()[i].setValue((String)tail[i].getValue(0));
+		if(tail != null) {
+			msg.setTail(new Field[tail.length]);
+			for(int i = 0; i < tail.length; i++) {
+				msg.getTail()[i] = new Field();
+				msg.getTail()[i].setName(tail[i].getName());
+				msg.getTail()[i].setLength(tail[i].getLength());
+				msg.getTail()[i].setPadType(tail[i].getPadType());
+				msg.getTail()[i].setPadChar(tail[i].getPadChar());
+				msg.getTail()[i].setEncode(tail[i].getEncode());
+				msg.getTail()[i].setDecode(tail[i].getDecode());
+				msg.getTail()[i].setValue((String)tail[i].getValue(0));
+			}
 		}
 		return msg;
 	}
