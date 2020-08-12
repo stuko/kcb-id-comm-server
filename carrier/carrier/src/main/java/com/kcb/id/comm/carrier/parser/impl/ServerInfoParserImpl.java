@@ -3,6 +3,7 @@ package com.kcb.id.comm.carrier.parser.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -12,6 +13,7 @@ import com.kcb.id.comm.carrier.loader.impl.ServerInfoImpl;
 import com.kcb.id.comm.carrier.parser.ServerInfoParser;
 
 @Component
+@Scope("prototype")
 public class ServerInfoParserImpl implements ServerInfoParser {
 
 	@Override

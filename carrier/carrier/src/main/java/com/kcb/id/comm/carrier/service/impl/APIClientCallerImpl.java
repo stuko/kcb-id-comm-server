@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -19,6 +20,7 @@ import okhttp3.Response;
 
 @Configuration
 @Component
+@Scope("prototype")
 public class APIClientCallerImpl implements IService{
 
 	static Logger logger = LoggerFactory.getLogger(APIClientCallerImpl.class);

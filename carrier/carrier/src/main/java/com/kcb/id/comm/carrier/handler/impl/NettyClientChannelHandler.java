@@ -1,5 +1,7 @@
 package com.kcb.id.comm.carrier.handler.impl;
 
+import com.kcb.id.comm.carrier.handler.NettyClientHandler;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,7 +15,14 @@ public class NettyClientChannelHandler extends SimpleChannelInboundHandler {
 	byte[] requestBytes;
 	byte[] responseBytes;
 	ByteBuf responseByteBuf;
+	NettyClientHandler clientHandler;
 	
+	public NettyClientHandler getClientHandler() {
+		return clientHandler;
+	}
+	public void setClientHandler(NettyClientHandler clientHandler) {
+		this.clientHandler = clientHandler;
+	}
 	public NettyClientChannelHandler(String msg){
 		request = msg;
 	}
@@ -72,5 +81,8 @@ public class NettyClientChannelHandler extends SimpleChannelInboundHandler {
 		ByteBuf derived = this.getResponseByteBuf().readBytes(bytes);
 		this.setResponseBytes(bytes);
 		this.setResponse(this.getResponseByteBuf().toString(CharsetUtil.UTF_8));
+		if(this.getClientHandler() != null) {
+			this.getClientHandler().handle(this.getResponseByteBuf());
+		}
 	}
 }

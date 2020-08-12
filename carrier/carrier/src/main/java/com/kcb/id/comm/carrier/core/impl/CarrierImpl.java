@@ -22,11 +22,14 @@ import com.kcb.id.comm.carrier.core.Carrier;
 import com.kcb.id.comm.carrier.handler.Handler;
 import com.kcb.id.comm.carrier.handler.impl.NettyAdapter;
 import com.kcb.id.comm.carrier.loader.HandlerInfoLoader;
+import com.kcb.id.comm.carrier.loader.Message;
+import com.kcb.id.comm.carrier.loader.MessageInfo;
 import com.kcb.id.comm.carrier.loader.MessageInfoLoader;
 import com.kcb.id.comm.carrier.loader.ServerInfo;
 import com.kcb.id.comm.carrier.loader.ServerInfoLoader;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -174,6 +177,7 @@ public class CarrierImpl implements Carrier {
 							ch.pipeline().addLast(
 								new NettyAdapter() {
 									public void onConnected(ChannelHandlerContext ctx) {
+										logger.debug("{}:{} is connected",server.getIP(),server.getPort());
 										String handlerClass = getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getHandlerClass();
 										try {
 											Object object = context.getBean(handlerClass);
@@ -187,6 +191,7 @@ public class CarrierImpl implements Carrier {
 										}
 									}
 									public void onReceived(ChannelHandlerContext ctx, Object msg) {
+										logger.debug("{}:{} is received",server.getIP(),server.getPort());
 										String handlerClass = getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getHandlerClass();
 										try {
 											Object object = context.getBean(handlerClass);
@@ -198,6 +203,24 @@ public class CarrierImpl implements Carrier {
 											}
 										} catch (Exception e) {
 											logger.error(e.toString(),e);
+											try {
+												MessageInfo messageInfo = getMessageInfoLoader().getMessageRepository().get(getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getMessageName());
+												if (messageInfo != null) {
+													String exception = e.getClass().getSimpleName();
+													logger.debug("[{}] Exception and choice {} " ,messageInfo.getName(), exception);
+													logger.debug("Exception Map is {} " , messageInfo.getExceptionMessageMap());
+													Message exMsg = messageInfo.getExceptionMessageMap().get(exception);
+													if(exMsg != null) {
+														logger.debug("Exception and find error message");
+														ByteBuf buf = exMsg.toByteBuf();
+														ctx.write(buf);
+														if (buf != null && buf.refCnt() != 0)
+															buf.release();
+													}
+												}
+											} catch (Exception ee) {
+												logger.error("Severe Error occurred...." + e.toString() + " in " + ee.toString() + "", ee);
+											}
 										}
 										
 									}
@@ -333,7 +356,7 @@ public class CarrierImpl implements Carrier {
 				start(s);
 			}).start();
 		});
-		this.monitoring();
+		// this.monitoring();
 	}
 	public void stopAll() {
 		try {

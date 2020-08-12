@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,6 +19,7 @@ import com.kcb.id.comm.carrier.loader.impl.MessageInfoImpl;
 import com.kcb.id.comm.carrier.parser.MessageInfoParser;
 
 @Component
+@Scope("prototype")
 public class MessageInfoParserImpl implements MessageInfoParser {
 
 	static Logger logger = LoggerFactory.getLogger(MessageInfoParserImpl.class);

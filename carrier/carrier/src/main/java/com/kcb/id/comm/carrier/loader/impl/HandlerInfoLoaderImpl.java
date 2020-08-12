@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.NodeList;
 
@@ -13,6 +14,7 @@ import com.kcb.id.comm.carrier.loader.HandlerInfoLoader;
 import com.kcb.id.comm.carrier.parser.HandlerInfoParser;
 
 @Component
+@Scope("prototype")
 public class HandlerInfoLoaderImpl extends LoaderImpl implements HandlerInfoLoader {
 
 	@Autowired

@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -190,6 +192,55 @@ public class NettyUtils {
 		return buf;
 	}
 
+	public static byte[] send(String host, int port, int timeout, byte[] msg) throws Exception{
+		Socket socket = null;
+		OutputStream o = null;
+		InputStream i = null;
+		BufferedOutputStream os = null;
+		BufferedInputStream is = null;
+		try {
+			socket = new Socket(host, port);
+			socket.setSoTimeout(timeout);
+			o = socket.getOutputStream();
+			i = socket.getInputStream();
+			is = new BufferedInputStream(i);
+			os = new BufferedOutputStream(o);
+			os.write(msg);
+			os.flush();
+			byte[] data = new byte[256];
+			int len = 0;
+			List<byte[]> byteArray = new ArrayList<>();
+			int totalLen = 0;
+			while ((len = is.read(data)) > 0) {
+				logger.info("read byte is {}", len);
+				byte[] readBuffer = new byte[len];
+				System.arraycopy(data, 0, readBuffer, 0, len);
+				byteArray.add(readBuffer);
+				totalLen += len;
+			}
+			os.close();
+			is.close();
+			socket.close();
+			os = null;
+			is = null;
+			socket = null;
+			byte[] response = new byte[totalLen];
+			int pos = 0; 
+			for(byte[] buf: byteArray){
+				System.arraycopy(buf, 0, response, pos, buf.length);
+				pos += buf.length;
+			}
+			return response;
+		} catch (Exception e) {
+			logger.error(e.toString(),e);
+			throw e;
+		} finally {
+			try {if (os != null)os.close();} catch (Exception e) {}
+			try {if (is != null)is.close();} catch (Exception e) {}
+			try {if (socket != null)socket.close();} catch (Exception e) {}
+		}
+	}
+	
 	/*
 	 * 입력한 서버의 아이피와 포트로 테스트 전문을 발송해 주는 메서드
 	 */

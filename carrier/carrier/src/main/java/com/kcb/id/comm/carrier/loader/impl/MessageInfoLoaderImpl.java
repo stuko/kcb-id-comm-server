@@ -7,6 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.NodeList;
 
@@ -15,6 +16,7 @@ import com.kcb.id.comm.carrier.loader.MessageInfoLoader;
 import com.kcb.id.comm.carrier.parser.MessageInfoParser;
 
 @Component
+@Scope("prototype")
 public class MessageInfoLoaderImpl extends LoaderImpl  implements MessageInfoLoader {
 
 	static Logger logger = LoggerFactory.getLogger(MessageInfoLoaderImpl.class);

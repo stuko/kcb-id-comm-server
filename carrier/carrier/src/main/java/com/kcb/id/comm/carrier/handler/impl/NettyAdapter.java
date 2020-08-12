@@ -19,6 +19,7 @@ public abstract class NettyAdapter extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		try {
+			logger.debug("channelActive");
 			this.onConnected(ctx);
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
@@ -28,12 +29,13 @@ public abstract class NettyAdapter extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		try {
+			logger.debug("channelRead");
 			this.onReceived(ctx, msg);
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 		} finally {
 			try{
-				if(msg != null && ((ByteBuf)msg).refCnt() != 0)ReferenceCountUtil.release(msg);
+				// if(msg != null && ((ByteBuf)msg).refCnt() != 0)ReferenceCountUtil.release(msg);
 			}catch(Exception e) {}
 		}
 	}

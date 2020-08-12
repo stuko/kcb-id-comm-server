@@ -1,8 +1,6 @@
 package com.kcb.id.comm.carrier.service.impl;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -12,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.kcb.id.comm.carrier.common.NettyUtils;
@@ -21,6 +20,7 @@ import com.kcb.id.comm.carrier.service.IService;
 @Service
 @Primary
 @MapperScan(basePackages="com.kcb.id.comm.carrier.mybatis.mapper")
+@Scope("prototype")
 public class SampleServiceImpl implements IService{
 
 	static Logger logger = LoggerFactory.getLogger(SampleServiceImpl.class);
@@ -32,8 +32,8 @@ public class SampleServiceImpl implements IService{
 	
 	@PostConstruct
     public void init() {
-        carrierMapper.createTestTable(null);
-        carrierMapper.insertTestData(null);
+        // carrierMapper.createTestTable(null);
+        // carrierMapper.insertTestData(null);
     }
 	
 	@Override
@@ -41,7 +41,7 @@ public class SampleServiceImpl implements IService{
 		Map<String,Object> m = new HashMap<>();
 		m.put("ID",NettyUtils.genId());
 		m.put("NAME",NettyUtils.genId("NAME_"));
-		carrierMapper.insertData(m);
+		// carrierMapper.insertData(m);
 		m.put("GUBUN","R");
 		m.put("SSN","12345678");
 		return m;

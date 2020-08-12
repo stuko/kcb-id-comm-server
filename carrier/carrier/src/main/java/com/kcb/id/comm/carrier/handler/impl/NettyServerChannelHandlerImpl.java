@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -31,17 +32,27 @@ import io.netty.util.ReferenceCountUtil;
 
 @Configuration
 @Component
+@Scope("prototype")
 public class NettyServerChannelHandlerImpl implements Handler {
 
 	static Logger logger = LoggerFactory.getLogger(NettyServerChannelHandlerImpl.class);
 
+	boolean sync = true;
 	@Autowired
 	IService service;
+
+	public boolean isSync() {
+		return sync;
+	}
+
+	public void setSync(boolean sync) {
+		this.sync = sync;
+	}
 
 	@Override
 	public void onConnected(ChannelHandlerContext ctx, Map<String, MessageInfo> messageRepository,
 			HandlerInfo handler) {
-		logger.debug("-----> onConnected.....");
+		logger.debug("[{}]-----> onConnected.....", handler.getMessageName());
 	}
 
 	@Override
@@ -49,66 +60,84 @@ public class NettyServerChannelHandlerImpl implements Handler {
 			HandlerInfo handler) {
 		MessageInfo messageInfo = null;
 		try {
+			logger.debug("Handler Name : {} , MessageName : {}", handler.getName(), handler.getMessageName());
 			messageInfo = messageRepository.get(handler.getMessageName());
 			MessageInfo parsedMsg = this.parseMessage(msg, messageInfo);
-
+			logger.debug("Parsed Message : {}", parsedMsg.getName());
 			if (messageInfo.getForward() != null && !"".equals(messageInfo.getForward())
 					&& messageRepository.get(messageInfo.getForward()) != null) {
+				logger.debug("Forward Message : {}", parsedMsg.getForward());
 				forward(ctx, messageRepository, messageInfo, parsedMsg);
 			} else {
+				logger.debug("Response Message : {}", parsedMsg.getName());
 				response(ctx, handler, parsedMsg);
 			}
 
 		} catch (Exception e) {
-			logger.error(e.toString(), e);
+			logger.error(e.toString());
 			try {
 				if (messageInfo != null) {
 					String exception = e.getClass().getSimpleName();
+					logger.debug("Exception and choice {} " , exception);
 					Message exMsg = messageInfo.getExceptionMessageMap().get(exception);
-					ByteBuf buf = exMsg.toByteBuf();
-					ctx.write(buf);
-					if(buf != null && buf.refCnt() != 0) buf.release();
+					if(exMsg != null) {
+						ByteBuf buf = exMsg.toByteBuf();
+						ctx.write(buf);
+						if (buf != null && buf.refCnt() != 0)
+							buf.release();
+					}
 				}
 			} catch (Exception ee) {
 				logger.error("Severe Error occurred...." + e.toString() + " in " + ee.toString() + "", ee);
 			}
 		} finally {
 			try {
-				if (ctx != null)
+				if (ctx != null) {
 					ctx.flush();
-				ctx.close();
-			} catch (Exception e) {
-			}
+					ctx.close();
+				}
+			} catch (Exception e) {}
 		}
 	}
 
 	private void forward(ChannelHandlerContext ctx, Map<String, MessageInfo> messageRepository, MessageInfo messageInfo,
-			MessageInfo parsedMsg) {
+			MessageInfo parsedMsg) throws Exception {
 		// messageInfo.getForwardServer() 와 messageInfo.getForwardPort() 로 전문을 그대로 전송한다.
 		MessageInfo forwardMsg = messageRepository.get(messageInfo.getForward());
 		ByteBuf buf = unParseMessage(parsedMsg, forwardMsg);
 		byte[] forwardBytes = new byte[buf.readableBytes()];
 		try {
 			buf.readBytes(forwardBytes);
-			if(buf != null && buf.refCnt() != 0) buf.release();
-			
-			NettyClient client = new NettyClient();
-			ByteBuf response = client.send(messageInfo.getForwardIp(), messageInfo.getForwardPort(), forwardBytes);
-			try {
-				final ChannelFuture f = ctx.writeAndFlush(response);
-				f.addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future) {
-						assert f == future;
-						if(response != null && response.refCnt() != 0) response.release();
-						ctx.close();
+			if (buf != null && buf.refCnt() != 0)
+				buf.release();
+
+			if (this.isSync()) {
+				logger.debug("Forward is sync");
+				byte[] responseBytes = NettyUtils.send(messageInfo.getForwardIp(), messageInfo.getForwardPort(),5000, forwardBytes);
+				if(responseBytes != null) ctx.writeAndFlush(responseBytes);
+				else ctx.close();
+			} else {
+				logger.debug("Forward is async");
+				NettyClient client = new NettyClient();
+				client.send(messageInfo.getForwardIp(), messageInfo.getForwardPort(), forwardBytes, (res) -> {
+					try {
+						final ChannelFuture f = ctx.writeAndFlush(res);
+						f.addListener(new ChannelFutureListener() {
+							@Override
+							public void operationComplete(ChannelFuture future) {
+								assert f == future;
+								if (res != null && res.refCnt() != 0)
+									res.release();
+								ctx.close();
+							}
+						});
+					} catch (IllegalReferenceCountException re) {
+						logger.debug("#### Already flush....######");
 					}
-				}); 
-			} catch (IllegalReferenceCountException re) {
-				logger.debug("#### Already flush....######");
+				});
 			}
 		} catch (Exception e) {
-			logger.error(e.toString(), e);
+			throw e;
 		}
 	}
 
@@ -118,6 +147,7 @@ public class NettyServerChannelHandlerImpl implements Handler {
 			ClassNotFoundException, Exception {
 		Map<String, Object> responseMap = new HashMap<>();
 		if (service == null) {
+			logger.debug("Service is Null");
 			if (handler.getBusinessClass() != null) {
 				Object object = Class.forName(handler.getBusinessClass()).getConstructor().newInstance();
 				if (object != null)
@@ -127,6 +157,8 @@ public class NettyServerChannelHandlerImpl implements Handler {
 		if (service == null) {
 			throw new Exception("NoServiceException");
 		}
+
+		logger.debug("Service Type is {}", service.getType());
 
 		if (service.getType() == Type.JSON) {
 			Gson gson = new Gson();
@@ -143,6 +175,9 @@ public class NettyServerChannelHandlerImpl implements Handler {
 		if (responseMap != null && responseMap.size() > 0) {
 			parsedMsg.getResponseMessage().setBodyValue(responseMap);
 		}
+
+		logger.debug("Service Response is {}", responseMap);
+
 		sendMessage(ctx, parsedMsg.getResponseMessage(), responseMap);
 	}
 
@@ -156,10 +191,11 @@ public class NettyServerChannelHandlerImpl implements Handler {
 					@Override
 					public void operationComplete(ChannelFuture future) {
 						assert f == future;
-						if(sendBuf != null && sendBuf.refCnt() != 0) sendBuf.release();
+						if (sendBuf != null && sendBuf.refCnt() != 0)
+							sendBuf.release();
 						ctx.close();
 					}
-				}); 
+				});
 			} catch (IllegalReferenceCountException re) {
 				logger.debug("#### Already flush....######");
 			}
@@ -263,7 +299,10 @@ public class NettyServerChannelHandlerImpl implements Handler {
 					bbs.close();
 			} catch (Exception e) {
 			}
-			try {ReferenceCountUtil.release(in);} catch (Exception e) {}
+			try {
+				ReferenceCountUtil.release(in);
+			} catch (Exception e) {
+			}
 		}
 		return msg;
 	}

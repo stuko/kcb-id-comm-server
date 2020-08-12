@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -14,6 +15,7 @@ import com.kcb.id.comm.carrier.loader.impl.HandlerInfoImpl;
 import com.kcb.id.comm.carrier.parser.HandlerInfoParser;
 
 @Component
+@Scope("prototype")
 public class HandlerInfoParserImpl  implements HandlerInfoParser {
 
 	static Logger logger = LoggerFactory.getLogger(HandlerInfoParserImpl.class);

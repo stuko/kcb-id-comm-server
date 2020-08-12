@@ -472,16 +472,20 @@ public class MessageImpl implements Message {
 				Object object = context.getBean(this.getEncoder());
 				if(object != null) {
 					Cypher cypher = (Cypher)object;
-					if ("true".equals(f.getEncode()))
+					if ("true".equals(f.getEncode())) {
+						cypher.setMessage(this);
 						f.setValue(idx, cypher.encode((String) f.getValue(idx)));
+					}
 				}
 			}
 			if("true".equals(this.getDecoder())) {
 				Object object = context.getBean(this.getDecoder());
 				if(object != null) {
 					Cypher cypher = (Cypher)object;
-					if ("true".equals(f.getDecode()))
+					if ("true".equals(f.getDecode())) {
+						cypher.setMessage(this);
 						f.setValue(idx, cypher.decode((String) f.getValue(idx)));
+					}
 				}
 			}
 		}catch(Exception e) {

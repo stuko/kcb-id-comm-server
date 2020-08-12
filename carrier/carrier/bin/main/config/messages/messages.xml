@@ -71,6 +71,17 @@
 				<field length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
 			</tail>
 		</error>
+		<error name="SocketTimeoutException">
+			<header>
+				<field length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="S005"></field>
+			</header>
+			<body>
+				<field length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
+			</body>
+			<tail>
+				<field length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
+			</tail>
+		</error>
 	</message>
 	<message name="SecondMessage">
 		<request repeat="false" repeatVariable="LENGTH" encoder="false" decoder="false">
@@ -98,6 +109,18 @@
 				<field length="8" name="MEMCODE" padType="rpad" padChar=" " encode="false" decode="false"></field>
 			</tail>
 		</response>
+		<error name="SocketTimeoutException">
+			<header>
+				<field length="4" name="CODE" padType="rpad" padChar=" " encode="false" decode="false" value="S005"></field>
+			</header>
+			<body>
+				<field length="10" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="ERROR"></field>
+			</body>
+			<tail>
+				<field length="100" name="GUBUN" padType="rpad" padChar=" " encode="false" decode="false" value="See you later"></field>
+			</tail>
+		</error>
+		
 	</message>
 
 </SET>
