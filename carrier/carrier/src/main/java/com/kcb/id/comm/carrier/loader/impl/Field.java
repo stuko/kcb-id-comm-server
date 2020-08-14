@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class Field implements Serializable {
 	
 	static Logger logger = LoggerFactory.getLogger(Field.class);
+	static enum TYPE {B,N,C};
 	
 	private static final long serialVersionUID = 1L;
 	String length;
@@ -23,7 +24,10 @@ public class Field implements Serializable {
 	String padType;
 	String padChar;
 	String charType;
-
+	TYPE type = TYPE.C;
+	boolean resCode;
+	String ref;
+	
 	public Field() {
 		value = new ArrayList<>();
 	}
@@ -245,6 +249,30 @@ public class Field implements Serializable {
 		int copyLen = src.length > t.length ? t.length : src.length;
 		System.arraycopy(src, 0, t, 0, copyLen);
 		return t;
+	}
+
+	public TYPE getType() {
+		return type;
+	}
+
+	public void setType(TYPE type) {
+		this.type = type;
+	}
+
+	public boolean isResCode() {
+		return resCode;
+	}
+
+	public void setResCode(boolean resCode) {
+		this.resCode = resCode;
+	}
+
+	public String getRef() {
+		return ref;
+	}
+
+	public void setRef(String ref) {
+		this.ref = ref;
 	}
 
 }

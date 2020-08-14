@@ -16,7 +16,7 @@ import com.kcb.id.comm.carrier.loader.MessageInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class MessageImpl implements Message {
+public class MessageImpl implements Message , MessageFrame {
 	
 	private static final long serialVersionUID = 1L;
 	static Logger logger = LoggerFactory.getLogger(MessageImpl.class);

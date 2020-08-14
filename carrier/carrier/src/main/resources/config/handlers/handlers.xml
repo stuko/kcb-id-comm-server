@@ -1,15 +1,99 @@
 <?xml version="1.0" encoding="euc-kr"?>
 <SET>
-<handler handlerName="ForwardHandler" 
-		 messageName="FirstMessage"
-         enable="true" 
-         handlerClass="nettyServerChannelHandlerImpl" 
-         businessClass=""></handler>
-         
-<handler handlerName="ReceiveHandler" 
-		 messageName="SecondMessage"
-         enable="true" 
-         handlerClass="nettyServerChannelHandlerImpl" 
-         businessClass=""></handler>
-         
+	<handler handlerName="ForwardHandler"
+		messageName="FirstMessage" enable="true"
+		handlerClass="nettyServerChannelHandlerImpl" businessClass="">
+		<error name="NotRegisteredMessageException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H001" />
+			</header>
+		</error>
+		<error name="MessageLengthException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H002" />
+			</header>
+		</error>
+		<error name="HandlerConcurrentException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H003" />
+			</header>
+		</error>
+		<error name="HandlerForwardException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H004" />
+			</header>
+		</error>
+		<error name="HandlerLateServiceException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H005" />
+			</header>
+		</error>
+		<error name="HandlerServiceContractException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H006" />
+			</header>
+		</error>
+		<error name="HandlerServicePeriodException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H007" />
+			</header>
+		</error>
+		<error name="HandlerServiceException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H008" />
+			</header>
+		</error>
+
+	</handler>
+
+	<handler handlerName="ReceiveHandler"
+		messageName="SecondMessage" enable="true"
+		handlerClass="nettyServerChannelHandlerImpl" businessClass="">
+		<error name="NotRegisteredMessageException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H001" />
+			</header>
+		</error>
+		<error name="NotRegisteredMessageException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H001" />
+			</header>
+		</error>
+		<error name="MessageLengthException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H002" />
+			</header>
+		</error>
+		<error name="HandlerConcurrentException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H003" />
+			</header>
+		</error>
+		<error name="HandlerForwardException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H004" />
+			</header>
+		</error>
+		<error name="HandlerLateServiceException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H005" />
+			</header>
+		</error>
+		<error name="HandlerServiceContractException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H006" />
+			</header>
+		</error>
+		<error name="HandlerServicePeriodException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H007" />
+			</header>
+		</error>
+		<error name="HandlerServiceException">
+			<header>
+				<field type="C" length="4" name="CODE" value="H008" />
+			</header>
+		</error>
+	</handler>
+
 </SET>

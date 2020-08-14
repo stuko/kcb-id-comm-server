@@ -69,9 +69,7 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 	}
 
 	private Message getRequestMessage(NodeList subNodeList, int j) {
-		
 		Message parsedMsg = new MessageImpl();
-		
 		String repeat = subNodeList.item(j).getAttributes().getNamedItem("repeat") == null ? "false"
 				: subNodeList.item(j).getAttributes().getNamedItem("repeat").getNodeValue();
 		String repeat_variable = subNodeList.item(j).getAttributes().getNamedItem("repeatVariable") == null ? ""
@@ -101,6 +99,7 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 		parsedMsg.setPath(path);
 
 		NodeList subSubNodeList = subNodeList.item(j).getChildNodes();
+		FieldParser parser = null;
 		for (int k = 0; k < subSubNodeList.getLength(); k++) {
 			if (subSubNodeList.item(j) == null)
 				continue;
@@ -108,55 +107,11 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 				continue;
 			Field[] fields = null;
 			Node subSubNode = subSubNodeList.item(k);
-			if (subSubNode.getNodeName().equals("header")) {
-				logger.debug("header node exists");
-				fields = getFields(subSubNode);
-				parsedMsg.setHeader(fields);
-			} else if (subSubNode.getNodeName().equals("body")) {
-				logger.debug("body node exists");
-				fields = getFields(subSubNode);
-				parsedMsg.setBody(fields);
-			} else if (subSubNode.getNodeName().equals("tail")) {
-				logger.debug("tail node exists");
-				fields = getFields(subSubNode);
-				parsedMsg.setTail(fields);
-			}
+			parser = new FieldParser();
+			parsedMsg = parser.parseFields(parsedMsg, subSubNode);
 		}
 		return parsedMsg;
 	}
 
-	private Field[] getFields(Node subSubNode) {
-		NodeList subSubSubNodeList = ((Element) subSubNode).getElementsByTagName("field");
-		Field[] fields = null;
-		if (subSubSubNodeList.getLength() > 0) {
-			logger.debug("field node exists");
-			fields = new Field[subSubSubNodeList.getLength()];
-		} else {
-			return null;
-		}
-		for (int l = 0; l < subSubSubNodeList.getLength(); l++) {
-			Node subSubSubSubNode = subSubSubNodeList.item(l);
-			fields[l] = new Field();
-			fields[l].setLength(subSubSubSubNode.getAttributes().getNamedItem("length").getNodeValue());
-			fields[l].setName(subSubSubSubNode.getAttributes().getNamedItem("name").getNodeValue());
-			if (subSubSubSubNode.getAttributes().getNamedItem("padType") != null) {
-				fields[l].setPadType(subSubSubSubNode.getAttributes().getNamedItem("padType").getNodeValue());
-			}
-			if (subSubSubSubNode.getAttributes().getNamedItem("padChar") != null) {
-				fields[l].setPadChar(subSubSubSubNode.getAttributes().getNamedItem("padChar").getNodeValue());
-			}
-			if (subSubSubSubNode.getAttributes().getNamedItem("encode") != null) {
-				fields[l].setEncode(subSubSubSubNode.getAttributes().getNamedItem("encode").getNodeValue());
-			}
-			if (subSubSubSubNode.getAttributes().getNamedItem("decode") != null) {
-				fields[l].setDecode(subSubSubSubNode.getAttributes().getNamedItem("decode").getNodeValue());
-			}
-			if (subSubSubSubNode.getAttributes().getNamedItem("value") != null) {
-				fields[l].setValue(subSubSubSubNode.getAttributes().getNamedItem("value").getNodeValue());
-			}
 
-			logger.debug("field data : " + fields[l].toRaw());
-		}
-		return fields;
-	}
 }

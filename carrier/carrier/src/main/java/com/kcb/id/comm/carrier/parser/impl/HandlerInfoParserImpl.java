@@ -28,6 +28,7 @@ public class HandlerInfoParserImpl  implements HandlerInfoParser {
 				continue;
 			Node node = nodeList.item(i);
 			NodeList subNodeList = node.getChildNodes();
+			FieldParser parser = null;
 			for (int j = 0; j < subNodeList.getLength(); j++) {
 				if (subNodeList.item(j).getNodeType() == Node.TEXT_NODE)
 					continue;
@@ -42,6 +43,21 @@ public class HandlerInfoParserImpl  implements HandlerInfoParser {
 					handlerInfo.setEnable(Boolean.getBoolean(subNodeList.item(j).getAttributes().getNamedItem("enable").getNodeValue()));
 					handlerInfo.setBusinessClass(
 							subNodeList.item(j).getAttributes().getNamedItem("businessClass").getNodeValue());
+					
+					if(subNodeList.item(j).hasChildNodes()) {
+						NodeList subSubNodeList = subNodeList.item(j).getChildNodes();
+						for(int k = 0; k < subSubNodeList.getLength(); k++) {
+							if (subSubNodeList.item(k).getNodeType() == Node.TEXT_NODE)
+								continue;
+							if (subSubNodeList.item(k).getNodeName().equals("error")) {
+								logger.debug("error node exists");
+								String exception = subSubNodeList.item(k).getAttributes().getNamedItem("name").getNodeValue();
+								parser = new FieldParser();
+								handlerInfo.getExceptionMessageMap().put(exception, parser.parseFields(subSubNodeList.item(k)));
+							}
+						}
+					}
+					
 					list.add(handlerInfo);
 				}
 			}

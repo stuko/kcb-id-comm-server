@@ -1,7 +1,11 @@
 package com.kcb.id.comm.carrier.loader.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
+import com.kcb.id.comm.carrier.loader.Message;
 import com.kcb.id.comm.carrier.loader.ServerInfo;
 
 @Component
@@ -11,6 +15,7 @@ public class ServerInfoImpl implements ServerInfo {
 	String IP;
 	String handlerName;
 	String name;
+	Map<String,Message> exceptionMessageMap = new HashMap<>();
 	
 	public String getName() {
 		return name;
@@ -51,4 +56,13 @@ public class ServerInfoImpl implements ServerInfo {
 		IP = iP;
 	}
 
+	public Map<String, Message> getExceptionMessageMap() {
+		return exceptionMessageMap;
+	}
+
+	public void setExceptionMessageMap(Map<String, Message> exceptionMessageMap) {
+		this.exceptionMessageMap = exceptionMessageMap;
+	}
+
+	
 }
