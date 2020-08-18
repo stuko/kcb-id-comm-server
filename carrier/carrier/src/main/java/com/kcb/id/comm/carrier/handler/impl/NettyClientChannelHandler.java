@@ -68,6 +68,7 @@ public class NettyClientChannelHandler extends SimpleChannelInboundHandler {
 		else messageBuffer.writeBytes(requestBytes);
 	    ctx.writeAndFlush(messageBuffer);
 	    if(messageBuffer != null && messageBuffer.refCnt() != 0) messageBuffer.release();
+	    System.out.println("################ SEND OK ");
 	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) {
@@ -76,6 +77,8 @@ public class NettyClientChannelHandler extends SimpleChannelInboundHandler {
 	}
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+		System.out.println("############## RECEIVE OK");
+		System.out.println(((ByteBuf)msg).isReadable() + " / " + ((ByteBuf)msg).isWritable());
 		this.setResponseByteBuf((ByteBuf)msg);
 		byte[] bytes = new byte[this.getResponseByteBuf().readableBytes()];
 		ByteBuf derived = this.getResponseByteBuf().readBytes(bytes);
@@ -84,5 +87,6 @@ public class NettyClientChannelHandler extends SimpleChannelInboundHandler {
 		if(this.getClientHandler() != null) {
 			this.getClientHandler().handle(this.getResponseByteBuf());
 		}
+		
 	}
 }

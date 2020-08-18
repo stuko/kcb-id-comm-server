@@ -2,7 +2,7 @@ package com.kcb.id.comm.carrier.loader;
 
 import java.util.Map;
 
-public interface HandlerInfo {
+public interface HandlerInfo extends Forward {
 	void setName(String handlerName);
 	String getName();
 	void setEnable(boolean enable);

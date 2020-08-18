@@ -6,7 +6,7 @@ import java.util.Map;
 import com.kcb.id.comm.carrier.loader.HandlerInfo;
 import com.kcb.id.comm.carrier.loader.Message;
 
-public class HandlerInfoImpl implements HandlerInfo {
+public class HandlerInfoImpl extends ForwardImpl implements HandlerInfo {
 	
 	String handlerName;
 	String messageName;

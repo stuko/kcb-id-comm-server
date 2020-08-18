@@ -1,5 +1,6 @@
 package com.kcb.id.comm.carrier.handler.impl;
 
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -52,22 +53,40 @@ public class NettyServerChannelHandlerImpl implements Handler {
 	@Override
 	public void onConnected(ChannelHandlerContext ctx, Map<String, MessageInfo> messageRepository,
 			HandlerInfo handler) {
-		logger.debug("[{}]-----> onConnected.....", handler.getMessageName());
+		logger.debug("[{}]-----> onConnected..... by {} ", handler.getMessageName() , this.toString());
+	}
+	
+	@Override
+	public void onCompleted(ChannelHandlerContext ctx, byte[] msg , Map<String, MessageInfo> messageRepository,
+			HandlerInfo handler) {
+		logger.debug("[{}]-----> onCompleted..... by {} ", handler.getMessageName(), this.toString());
 	}
 
 	@Override
-	public void onReceived(ChannelHandlerContext ctx, Object msg, Map<String, MessageInfo> messageRepository,
+	public void onReceived(ChannelHandlerContext ctx, byte[] msg, Map<String, MessageInfo> messageRepository,
 			HandlerInfo handler) {
+		this.receive(ctx, msg, messageRepository, handler);
+	}
+	
+	private void receive(ChannelHandlerContext ctx, byte[] msg, Map<String, MessageInfo> messageRepository,	HandlerInfo handler) {
 		MessageInfo messageInfo = null;
 		try {
+			logger.debug("##########################");
+			logger.debug("###### RECEIVE ######");
+			logger.debug("##########################");
+			logger.debug("[{}] [{}]-----> onReceived..... by {} ", msg.length, handler.getMessageName(), this.toString());
+			logger.debug("[{}]-----> onReceived..... by {} ", handler.getMessageName(), this.toString());
+			logger.debug("##########################");
+			
 			logger.debug("Handler Name : {} , MessageName : {}", handler.getName(), handler.getMessageName());
+			logger.debug("Handler Forward : {},{},{}", handler.getForward(), handler.getForwardIp(), handler.getForwardPort());
 			messageInfo = messageRepository.get(handler.getMessageName());
 			MessageInfo parsedMsg = this.parseMessage(msg, messageInfo);
 			logger.debug("Parsed Message : {}", parsedMsg.getName());
-			if (messageInfo.getForward() != null && !"".equals(messageInfo.getForward())
-					&& messageRepository.get(messageInfo.getForward()) != null) {
-				logger.debug("Forward Message : {}", parsedMsg.getForward());
-				forward(ctx, messageRepository, messageInfo, parsedMsg);
+			if (handler.getForward() != null && !"".equals(handler.getForward())
+					&& messageRepository.get(handler.getForward()) != null) {
+				logger.debug("Forward Message : {}", handler.getForward());
+				forward(ctx, handler, messageRepository, messageInfo, parsedMsg);
 			} else {
 				logger.debug("Response Message : {}", parsedMsg.getName());
 				response(ctx, handler, parsedMsg);
@@ -93,17 +112,17 @@ public class NettyServerChannelHandlerImpl implements Handler {
 		} finally {
 			try {
 				if (ctx != null) {
-					ctx.flush();
-					ctx.close();
+					//ctx.flush();
+					//ctx.close();
 				}
 			} catch (Exception e) {}
 		}
 	}
 
-	private void forward(ChannelHandlerContext ctx, Map<String, MessageInfo> messageRepository, MessageInfo messageInfo,
+	private void forward(ChannelHandlerContext ctx,HandlerInfo handler, Map<String, MessageInfo> messageRepository, MessageInfo messageInfo,
 			MessageInfo parsedMsg) throws Exception {
 		// messageInfo.getForwardServer() 와 messageInfo.getForwardPort() 로 전문을 그대로 전송한다.
-		MessageInfo forwardMsg = messageRepository.get(messageInfo.getForward());
+		MessageInfo forwardMsg = messageRepository.get(handler.getForward());
 		ByteBuf buf = unParseMessage(parsedMsg, forwardMsg);
 		byte[] forwardBytes = new byte[buf.readableBytes()];
 		try {
@@ -113,13 +132,15 @@ public class NettyServerChannelHandlerImpl implements Handler {
 
 			if (this.isSync()) {
 				logger.debug("Forward is sync");
-				byte[] responseBytes = NettyUtils.send(messageInfo.getForwardIp(), messageInfo.getForwardPort(),5000, forwardBytes);
-				if(responseBytes != null) ctx.writeAndFlush(responseBytes);
+				logger.debug("Forward data is [{}]" , new String(forwardBytes));
+				byte[] responseBytes = NettyUtils.send(handler.getForwardIp(), handler.getForwardPort(),5000, forwardBytes);
+				logger.debug("Forward is completed");
+				if(responseBytes != null) ctx.write(responseBytes);
 				else ctx.close();
 			} else {
 				logger.debug("Forward is async");
 				NettyClient client = new NettyClient();
-				client.send(messageInfo.getForwardIp(), messageInfo.getForwardPort(), forwardBytes, (res) -> {
+				client.send(handler.getForwardIp(), handler.getForwardPort(), forwardBytes, (res) -> {
 					try {
 						final ChannelFuture f = ctx.writeAndFlush(res);
 						f.addListener(new ChannelFutureListener() {
@@ -184,18 +205,12 @@ public class NettyServerChannelHandlerImpl implements Handler {
 	private void sendMessage(ChannelHandlerContext ctx, Message msg, Map<String, Object> responseMap) {
 		Charset charset = Charset.defaultCharset();
 		try {
+			logger.debug("Let's send return message ...");
 			ByteBuf sendBuf = NettyUtils.getMessage2ByteBuf(msg, responseMap);
 			try {
-				final ChannelFuture f = ctx.writeAndFlush(sendBuf);
-				f.addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future) {
-						assert f == future;
-						if (sendBuf != null && sendBuf.refCnt() != 0)
-							sendBuf.release();
-						ctx.close();
-					}
-				});
+				logger.debug("ByteBuf 's length is {}", sendBuf.readableBytes());
+				ctx.write(sendBuf);
+				logger.debug("write and flush");
 			} catch (IllegalReferenceCountException re) {
 				logger.debug("#### Already flush....######");
 			}
@@ -204,12 +219,11 @@ public class NettyServerChannelHandlerImpl implements Handler {
 		}
 	}
 
-	public MessageInfo parseMessage(Object in, MessageInfo messageInfo) {
+	public MessageInfo parseMessage(byte[] in, MessageInfo messageInfo) {
 
-		ByteBuf byteBuf = (ByteBuf) in;
 		String currentData = "";
 		String currentPart = "";
-		ByteBufInputStream bbs = null;
+		ByteArrayInputStream bais = null;
 		MessageInfo msg = messageInfo.newInstance();
 		try {
 			logger.debug("[{}] Request Original Header's length = {} ", messageInfo.getName(),
@@ -250,13 +264,13 @@ public class NettyServerChannelHandlerImpl implements Handler {
 			Field[] body = messageInfo.getRequestMessage().getBody();
 			Field[] tail = messageInfo.getRequestMessage().getTail();
 			currentPart = "header";
-			bbs = new ByteBufInputStream(byteBuf);
+			bais = new ByteArrayInputStream(in);
 
 			for (int i = 0; i < header.length; i++) {
 				Field f = header[i];
 				currentData = f.getName();
 				byte[] buf = new byte[Integer.parseInt(f.getLength())];
-				bbs.read(buf);
+				bais.read(buf);
 				String value = new String(buf);
 				messageInfo.getRequestMessage().encodeOrDecode(f);
 			}
@@ -271,7 +285,7 @@ public class NettyServerChannelHandlerImpl implements Handler {
 					Field f = body[j];
 					currentData = f.getName();
 					byte[] buf = new byte[Integer.parseInt(f.getLength())];
-					bbs.read(buf);
+					bais.read(buf);
 					String value = new String(buf);
 					f.addValue(value);
 					messageInfo.getRequestMessage().encodeOrDecode(f, i);
@@ -283,20 +297,20 @@ public class NettyServerChannelHandlerImpl implements Handler {
 				Field f = tail[i];
 				currentData = f.getName();
 				byte[] buf = new byte[Integer.parseInt(f.getLength())];
-				bbs.read(buf);
+				bais.read(buf);
 				String value = new String(buf);
 				f.setValue(value);
 				messageInfo.getRequestMessage().encodeOrDecode(f);
 				msg.getRequestMessage().getTail()[i].setValue(value);
 			}
-			bbs.close();
-			bbs = null;
+			bais.close();
+			bais = null;
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 		} finally {
 			try {
-				if (bbs != null)
-					bbs.close();
+				if (bais != null)
+					bais.close();
 			} catch (Exception e) {
 			}
 			try {

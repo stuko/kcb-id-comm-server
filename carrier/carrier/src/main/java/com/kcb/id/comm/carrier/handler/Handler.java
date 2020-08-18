@@ -10,6 +10,7 @@ import io.netty.channel.ChannelHandlerContext;
 public interface Handler {
 	boolean isSync();
 	void setSync(boolean sync);
+	void onCompleted(ChannelHandlerContext ctx, byte[] msg , Map<String,MessageInfo> messageRepository, HandlerInfo handler);
 	void onConnected(ChannelHandlerContext ctx, Map<String,MessageInfo> messageRepository, HandlerInfo handler);
-	void onReceived(ChannelHandlerContext ctx, Object msg , Map<String,MessageInfo> messageRepository, HandlerInfo handler);
+	void onReceived(ChannelHandlerContext ctx, byte[] msg , Map<String,MessageInfo> messageRepository, HandlerInfo handler);
 }

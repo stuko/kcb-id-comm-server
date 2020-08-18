@@ -44,6 +44,7 @@ public class SampleServiceImpl implements IService{
 		// carrierMapper.insertData(m);
 		m.put("GUBUN","R");
 		m.put("SSN","12345678");
+		System.out.println("############# Call service");
 		return m;
 	}
 

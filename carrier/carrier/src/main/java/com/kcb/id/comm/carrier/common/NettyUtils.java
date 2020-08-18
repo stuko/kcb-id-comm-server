@@ -2,6 +2,8 @@ package com.kcb.id.comm.carrier.common;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -14,11 +16,13 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.kcb.id.comm.carrier.handler.impl.NettyClient;
 import com.kcb.id.comm.carrier.loader.Message;
 import com.kcb.id.comm.carrier.loader.impl.Field;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.util.IllegalReferenceCountException;
 
 /*
  * Netty 관련한 유틸리티 클래스
@@ -196,28 +200,40 @@ public class NettyUtils {
 		Socket socket = null;
 		OutputStream o = null;
 		InputStream i = null;
-		BufferedOutputStream os = null;
-		BufferedInputStream is = null;
+		DataOutputStream os = null;
+		DataInputStream is = null;
 		try {
+			logger.debug("IP = {} , PORT = {}", host, port);
 			socket = new Socket(host, port);
+			logger.debug("New Socket...");
 			socket.setSoTimeout(timeout);
+			logger.debug("set time out = {}",timeout);
 			o = socket.getOutputStream();
+			logger.debug("ready to outputstream");
 			i = socket.getInputStream();
-			is = new BufferedInputStream(i);
-			os = new BufferedOutputStream(o);
+			logger.debug("ready to inputstream");
+			is = new DataInputStream(i);
+			os = new DataOutputStream(o);
+			logger.debug("ready to buffered i/o stream");
 			os.write(msg);
+			logger.debug("write...");
 			os.flush();
+			logger.debug("write flush");
 			byte[] data = new byte[256];
 			int len = 0;
 			List<byte[]> byteArray = new ArrayList<>();
 			int totalLen = 0;
+			logger.debug("ok let's receive from server");
 			while ((len = is.read(data)) > 0) {
 				logger.info("read byte is {}", len);
 				byte[] readBuffer = new byte[len];
 				System.arraycopy(data, 0, readBuffer, 0, len);
 				byteArray.add(readBuffer);
 				totalLen += len;
+				if(len <= 256)break;
+				data = new byte[256];
 			}
+			logger.debug("right .. we read all of bytes {}" , totalLen);
 			os.close();
 			is.close();
 			socket.close();
@@ -313,4 +329,25 @@ public class NettyUtils {
 		}
 	}
 
+	public static void main(String[] args) {
+		try {
+			System.out.println("["+new String(NettyUtils.send("192.168.57.163", 9006, 5000, "TESTASFDSFARERASER".getBytes()))+"]");
+			/*
+			NettyClient client = new NettyClient();
+			client.send("192.168.57.163", 9007, "TESTASFDSFARERASER".getBytes(), (res) -> {
+				try {
+					System.out.println("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
+					byte[] bytes = new byte[res.readableBytes()];
+					res.readBytes(bytes);
+					System.out.println(new String(bytes));
+				} catch (IllegalReferenceCountException re) {
+					logger.debug("#### Already flush....######");
+				}
+			})
+			;
+			*/
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

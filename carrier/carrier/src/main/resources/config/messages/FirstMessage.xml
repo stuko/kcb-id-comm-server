@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="euc-kr"?>
 <SET>
-	<message name="FirstMessage" forward="SecondMessage">
+	<message name="FirstMessage">
 		<request repeat="false"	repeatVariable="LENGTH" encoder="false" decoder="false">
 			<header>
 				<field type="B" length="4" name="LENGTH"/>

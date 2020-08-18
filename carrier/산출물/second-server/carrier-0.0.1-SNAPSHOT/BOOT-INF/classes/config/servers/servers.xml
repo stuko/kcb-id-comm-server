@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+	
+
+	<server serverName="Server2" ip="192.168.57.163" port="9007"
+		enable="true" handlerName="ReceiveHandler">
+		<error name="ServerNoResponseException">
+			<header>
+				<field type="C" length="4" name="CODE" value="S001" />
+			</header>
+		</error>
+		<error name="ServerLateResponseException">
+			<header>
+				<field type="C" length="4" name="CODE" value="S002" />
+			</header>
+		</error>
+		<error name="ServerResponseTimeOutException">
+			<header>
+				<field type="C" length="4" name="CODE" value="S003" />
+			</header>
+		</error>
+		<error name="ServerForwardResponseTimeOutException">
+			<header>
+				<field type="C" length="4" name="CODE" value="S004" />
+			</header>
+		</error>
+
+	</server>
+
+</SET>

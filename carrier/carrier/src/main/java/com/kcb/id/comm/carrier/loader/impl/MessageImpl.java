@@ -279,7 +279,7 @@ public class MessageImpl implements Message , MessageFrame {
 				} catch (Exception e) {
 					logger.error(e.toString(),e);
 				}
-				logger.debug("Header's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes()));
+				logger.debug("Header's toByteBuf : {} -> [{}]" , f.getName(), new String(f.getValueBytes()));
 				buf.writeBytes(f.getValueBytes());
 			}
 		}
@@ -297,7 +297,7 @@ public class MessageImpl implements Message , MessageFrame {
 					} catch (Exception e) {
 						logger.error(e.toString(),e);
 					}
-					logger.debug("Body's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes(i)));
+					logger.debug("Body's toByteBuf : {} -> [{}]" , f.getName(), new String(f.getValueBytes(i)));
 					buf.writeBytes(f.getValueBytes(i));
 				}
 			}
@@ -310,13 +310,13 @@ public class MessageImpl implements Message , MessageFrame {
 				} catch (Exception e) {
 					logger.error(e.toString(),e);
 				}
-				logger.debug("Tail's toByteBuf : {} -> {}" , f.getName(), new String(f.getValueBytes()));
+				logger.debug("Tail's toByteBuf : {} -> [{}]" , f.getName(), new String(f.getValueBytes()));
 				buf.writeBytes(f.getValueBytes());
 			}
 		}
-		byte[] b = new byte[buf.readableBytes()];
-		buf.readBytes(b);
-		logger.debug("FINAL : [{}]", new String(b));
+		// byte[] b = new byte[buf.readableBytes()];
+		// buf.readBytes(b);
+		// logger.debug("FINAL : [{}]", new String(b));
 		return buf;
 	}
 

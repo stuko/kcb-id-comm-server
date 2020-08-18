@@ -2,7 +2,10 @@
 <SET>
 	<handler handlerName="ForwardHandler"
 		messageName="FirstMessage" enable="true"
-		handlerClass="nettyServerChannelHandlerImpl" businessClass="">
+		handlerClass="nettyServerChannelHandlerImpl" businessClass=""
+		forward="SecondMessage"
+		forwardIp="192.168.57.163"
+		forwardPort="9007">
 		<error name="NotRegisteredMessageException">
 			<header>
 				<field type="C" length="4" name="CODE" value="H001" />

@@ -88,6 +88,7 @@ public class Field implements Serializable {
 
 	public void toPadding() throws NumberFormatException, UnsupportedEncodingException {
 		String result = (String) this.getValue(0);
+		if(this.getPadType() == null) return;
 		if ("RPAD".equals(this.getPadType().toUpperCase())) {
 			result = rpad(toEncoding(result), Integer.parseInt(this.getLength()), this.getPadChar());
 		} else if ("LPAD".equals(this.getPadType().toUpperCase())) {

@@ -18,9 +18,9 @@ logging:
 ########################################
 carrier:
   path:
-    server: classpath:config/servers/
-    message: classpath:config/messages/
-    handler: classpath:config/handlers/
+    server: config/servers/*.xml
+    message: config/messages/*.xml
+    handler: config/handlers/*.xml
   url:
     server: http://localhost:8081/servers 
     message: http://localhost:8081/messages

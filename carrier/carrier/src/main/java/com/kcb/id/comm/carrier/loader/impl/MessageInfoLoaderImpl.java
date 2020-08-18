@@ -46,7 +46,6 @@ public class MessageInfoLoaderImpl extends LoaderImpl  implements MessageInfoLoa
 			List<MessageInfo> list = this.getParser().parse(nodeList);
 			if (list != null && list.size() > 0) {
 				list.forEach(message->{
-					logger.debug(" #### Message's forward : {} " , message.getForward());
 					this.getMessageRepository().put(message.getName(),message);
 				});
 			} 

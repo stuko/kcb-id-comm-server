@@ -21,9 +21,6 @@ public class MessageInfoImpl implements Serializable, Cloneable, MessageInfo {
 	Message responseMessage;
 	Map<String,Message> exceptionMessageMap = new HashMap<>();
 
-	String forward;
-	String forwardIp;
-	int  forwardPort;
 	String name;
 	
 	@Override
@@ -61,14 +58,6 @@ public class MessageInfoImpl implements Serializable, Cloneable, MessageInfo {
 		this.exceptionMessageMap = exceptionMessageMap;
 	}
 
-	public String getForward() {
-		return forward;
-	}
-
-	public void setForward(String forward) {
-		this.forward = forward;
-	}
-	
 	public MessageInfo newInstance() {
 		MessageInfo msg = new MessageInfoImpl();
 		msg.setRequestMessage(this.getRequestMessage().newInstance());		
@@ -77,27 +66,9 @@ public class MessageInfoImpl implements Serializable, Cloneable, MessageInfo {
 			msg.getExceptionMessageMap().put(k,v.newInstance());
 		});
 		msg.setName(this.getName());
-		msg.setForward(this.getForward());
-		msg.setForwardIp(this.getForwardIp());
-		msg.setForwardPort(this.getForwardPort());
 		return msg;
 	}
 
-	public String getForwardIp() {
-		return forwardIp;
-	}
-
-	public void setForwardIp(String forwardIp) {
-		this.forwardIp = forwardIp;
-	}
-
-	public int getForwardPort() {
-		return forwardPort;
-	}
-
-	public void setForwardPort(int forwardPort) {
-		this.forwardPort = forwardPort;
-	}
 
 	
 }

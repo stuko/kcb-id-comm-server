@@ -43,6 +43,11 @@ public class HandlerInfoParserImpl  implements HandlerInfoParser {
 					handlerInfo.setEnable(Boolean.getBoolean(subNodeList.item(j).getAttributes().getNamedItem("enable").getNodeValue()));
 					handlerInfo.setBusinessClass(
 							subNodeList.item(j).getAttributes().getNamedItem("businessClass").getNodeValue());
+
+					handlerInfo.setForward(subNodeList.item(j).getAttributes().getNamedItem("forward") == null ? "" : subNodeList.item(j).getAttributes().getNamedItem("forward").getNodeValue());
+					handlerInfo.setForwardIp(subNodeList.item(j).getAttributes().getNamedItem("forwardIp") == null ? "" : subNodeList.item(j).getAttributes().getNamedItem("forwardIp").getNodeValue());
+					String sPort = subNodeList.item(j).getAttributes().getNamedItem("forwardPort") == null ? "" : subNodeList.item(j).getAttributes().getNamedItem("forwardPort").getNodeValue();
+					if(sPort != null && !"".equals(sPort)) handlerInfo.setForwardPort(Integer.parseInt(sPort));
 					
 					if(subNodeList.item(j).hasChildNodes()) {
 						NodeList subSubNodeList = subNodeList.item(j).getChildNodes();

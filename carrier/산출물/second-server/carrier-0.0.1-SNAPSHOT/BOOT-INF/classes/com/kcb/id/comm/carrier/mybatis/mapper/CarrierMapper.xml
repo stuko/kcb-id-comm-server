@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.kcb.id.comm.carrier.mybatis.mapper.CarrierMapper">
+	<select id="selectTestMapper" parameterType="map"
+		resultType="map">
+		Select * from TEST
+	</select>
+
+	<insert id="createTestTable" parameterType="map" >
+		create table test(
+		id varchar(100),
+		name varchar(100),
+		primary key(id)
+		)
+	</insert>
+
+	<insert id="insertTestData" parameterType="map" >
+		insert into TEST(ID, NAME) values('hongildong','홍길동')
+	</insert>
+
+	<insert id="insertData" parameterType="map" >
+		insert into TEST(ID, NAME) values(#{ID},#{NAME})
+	</insert>
+
+</mapper>

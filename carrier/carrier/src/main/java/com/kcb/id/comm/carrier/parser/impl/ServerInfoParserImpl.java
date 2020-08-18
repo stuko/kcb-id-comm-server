@@ -23,7 +23,6 @@ public class ServerInfoParserImpl implements ServerInfoParser {
 	@Override
 	public List<ServerInfo> parse(NodeList nodeList) {
 		List<ServerInfo> list = new ArrayList<>();
-		ServerInfo serverInfo = null;
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			if (nodeList.item(i).getNodeType() == Node.TEXT_NODE)
 				continue;
@@ -34,13 +33,15 @@ public class ServerInfoParserImpl implements ServerInfoParser {
 				if (subNodeList.item(j).getNodeType() == Node.TEXT_NODE)
 					continue;
 				if (subNodeList.item(j).getNodeName().equals("server")) {
+					ServerInfo serverInfo = new ServerInfoImpl();
 					String serverName = subNodeList.item(j).getAttributes().getNamedItem("serverName").getNodeValue();
-					if(serverInfo == null) serverInfo = new ServerInfoImpl();
 					serverInfo.setName(serverName);
 					serverInfo.setIP(subNodeList.item(j).getAttributes().getNamedItem("ip").getNodeValue());
 					String port = subNodeList.item(j).getAttributes().getNamedItem("port").getNodeValue();
 					if(port != null) serverInfo.setPort(Integer.parseInt(port));
+					logger.debug("Server info is {}:{}", serverInfo.getIP(), serverInfo.getPort());
 					serverInfo.setHandlerName(subNodeList.item(j).getAttributes().getNamedItem("handlerName").getNodeValue());
+					
 					if(subNodeList.item(j).hasChildNodes()) {
 						NodeList subSubNodeList = subNodeList.item(j).getChildNodes();
 						for(int k = 0; k < subSubNodeList.getLength(); k++) {

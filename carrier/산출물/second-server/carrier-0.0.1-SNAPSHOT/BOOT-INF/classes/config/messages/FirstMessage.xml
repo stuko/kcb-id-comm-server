@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+	<message name="FirstMessage">
+		<request repeat="false"	repeatVariable="LENGTH" encoder="false" decoder="false">
+			<header>
+				<field type="B" length="4" name="LENGTH"/>
+				<field type="C" length="9" name="TRANSACTION_CODE"/>
+				<field type="C" length="8" name="MEM_CODE"/>
+				<field type="C" length="4" name="MSG_TYPE_CODE"/>
+				<field type="C" length="3" name="MSG_WORK_CODE"/>
+				<field type="C" length="1" name="FLAG"/>
+				<field type="C" length="4" name="RES_CODE"/>
+				<field type="N" length="7" name="KCB_MSG_MGT_NUM"/>
+				<field type="N" length="14" name="KCB_MSG_SEND_TIME"/>
+				<field type="N" length="7" name="MEM_MSG_MGT_NUM"/>
+				<field type="N" length="14" name="MEM_MSG_SEND_TIME"/>
+				<field type="C" length="16" name="KCB_SYS_INFO"/>
+				<field type="B" length="43" name="FILLER"/>
+			</header>
+			<body>
+				<field type="C" length="22" name="SSN" padType="rpad"	padChar="#" encode="false" decode="false"/>
+				<field type="C" length="22" name="SSN2" padType="rpad"	padChar="#" encode="false" decode="false"/>
+			</body>
+			<tail>
+				<field type="C" length="271" name="FILLER" padType="rpad"	padChar=" " encode="false" decode="false"/>
+			</tail>
+		</request>
+		<response repeat="false" repeatVariable="LENGTH" encoder="false" decoder="false">
+			<header>
+				<field type="B" length="4" name="LENGTH"/>
+				<field type="C" length="9" name="TRANSACTION_CODE" ref="request.header.TRANSACTION_CODE" />
+				<field type="C" length="8" name="ORG_CODE" ref="request.header.MEM_CODE" />
+				<field type="C" length="4" name="MSG_TYPE_CODE" ref="request.header.MSG_TYPE_CODE" />
+				<field type="C" length="3" name="MSG_WORK_CODE" ref="request.header.MSG_WORK_CODE" />
+				<field type="C" length="1" name="FLAG" ref="request.header.FLAG"/>
+				<field type="C" length="4" name="RES_CODE" isResCode="true"/>
+				<field type="N" length="7" name="KCB_MSG_MGT_NUM" ref="request.header.KCB_MSG_MGT_NUM"/>
+				<field type="N" length="14" name="KCB_MSG_SEND_TIME" ref="request.header.KCB_MSG_SEND_TIME"/>
+				<field type="N" length="7" name="MEM_MSG_MGT_NUM" ref="request.header.MEM_MSG_MGT_NUM"/>
+				<field type="N" length="14" name="MEM_MSG_SEND_TIME" ref="request.header.MEM_MSG_SEND_TIME"/>
+				<field type="C" length="16" name="KCB_SYS_INFO" ref="request.header.KCB_SYS_INFO"/>
+				<field type="B" length="43" name="FILLER"/>
+			</header>
+			<body>
+				<field type="C" length="4" name="NAME" padType="rpad" padChar=" " encode="false" decode="false"/>
+			</body>
+			<tail>
+				<field type="C" length="8" name="MEMCODE" padType="rpad" padChar=" " encode="false" decode="false"/>
+			</tail>
+		</response>
+		<error name="MessageFieldLengthException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M001"/>
+			</header>
+		</error>
+		<error name="MessageFieldNumberTypeException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M002"/>
+			</header>
+		</error>
+		<error name="MessageFieldCharTypeException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M003"/>
+			</header>
+		</error>
+		<error name="MessageFieldBinaryTypeException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M004"/>
+			</header>
+		</error>
+		<error name="MessageFieldNumberDomainException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M005"/>
+			</header>
+		</error>
+		<error name="MessageFieldCodeDomainException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M006"/>
+			</header>
+		</error>
+		<error name="MessageFieldCharsetException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M007"/>
+			</header>
+		</error>
+		<error name="MessageFieldNullException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M008"/>
+			</header>
+		</error>
+		<error name="MessageFieldBlankException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M009"/>
+			</header>
+		</error>
+		<error name="MessageFieldVariableLengthException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M010"/>
+			</header>
+		</error>
+		<error name="MessageFieldDefaultValueException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M011"/>
+			</header>
+		</error>
+		<error name="MessageFieldNumberRightPaddingException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M012"/>
+			</header>
+		</error>
+		<error name="MessageFieldNumberLeftPaddingException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M013"/>
+			</header>
+		</error>
+		<error name="MessageFieldCharRightPaddingException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M014"/>
+			</header>
+		</error>
+		<error name="MessageFieldCharLeftPaddingException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M015"/>
+			</header>
+		</error>
+		<error name="MessageFieldBinaryRightPaddingException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M016"/>
+			</header>
+		</error>
+		<error name="MessageFieldBinaryLeftPaddingException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M017"/>
+			</header>
+		</error>
+		<error name="MessageFieldVariablePaddingException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M018"/>
+			</header>
+		</error>
+		<error name="MessageFieldCypherException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M019"/>
+			</header>
+		</error>
+		<error name="MessageFieldCypherKeyException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M020"/>
+			</header>
+		</error>
+		<error name="MessageFieldCypherAlgorithmException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M021"/>
+			</header>
+		</error>
+		<error name="MessageFieldCypherCharsetException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M022"/>
+			</header>
+		</error>
+		<error name="MessageFieldCypherInitialVectorException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M023"/>
+			</header>
+		</error>
+		<error name="MessageResCodeNameException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M024"/>
+			</header>
+		</error>
+		<error name="MessageReferenceException">
+			<header>
+				<field type="C" length="4" name="CODE" value="M025"/>
+			</header>
+		</error>
+		
+	</message>
+
+</SET>

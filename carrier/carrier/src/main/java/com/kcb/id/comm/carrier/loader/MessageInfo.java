@@ -16,14 +16,6 @@ public interface MessageInfo{
 	Map<String,Message> getExceptionMessageMap();
 	void setExceptionMessageMap(Map<String,Message> exceptionMessage);
 	
-	void setForward(String msgName);
-	String getForward();
 
 	MessageInfo newInstance();
-	
-	void setForwardIp(String ip);
-	String getForwardIp();
-	
-	void setForwardPort(int port);
-	int getForwardPort();
 }
