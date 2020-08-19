@@ -121,4 +121,6 @@ public interface Message  extends SelfChecker{
 	String getDestinationPort();
 
 	void setDestinationPort(String destinationPort);
+	
+	int getLength(Field field, MessageInfo messageInfo) throws Exception;
 }

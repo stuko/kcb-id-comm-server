@@ -51,7 +51,15 @@ public class FieldParser {
 		for (int l = 0; l < subSubSubNodeList.getLength(); l++) {
 			Node subSubSubSubNode = subSubSubNodeList.item(l);
 			fields[l] = new Field();
-			fields[l].setLength(subSubSubSubNode.getAttributes().getNamedItem("length").getNodeValue());
+			
+			if (subSubSubSubNode.getAttributes().getNamedItem("length") != null) {
+				fields[l].setLength(subSubSubSubNode.getAttributes().getNamedItem("length").getNodeValue());
+			}
+			
+			if (subSubSubSubNode.getAttributes().getNamedItem("refLength") != null) {
+				fields[l].setRefLength(subSubSubSubNode.getAttributes().getNamedItem("refLength").getNodeValue());
+			}
+			
 			fields[l].setName(subSubSubSubNode.getAttributes().getNamedItem("name").getNodeValue());
 			if (subSubSubSubNode.getAttributes().getNamedItem("padType") != null) {
 				fields[l].setPadType(subSubSubSubNode.getAttributes().getNamedItem("padType").getNodeValue());

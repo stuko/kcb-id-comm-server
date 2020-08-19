@@ -27,6 +27,7 @@ public class Field implements Serializable {
 	TYPE type = TYPE.C;
 	boolean resCode;
 	String ref;
+	String refLength;
 	
 	public Field() {
 		value = new ArrayList<>();
@@ -52,6 +53,14 @@ public class Field implements Serializable {
 		this.length = length;
 	}
 
+	public String getRefLength() {
+		return refLength;
+	}
+
+	public void setRefLength(String refLength) {
+		this.refLength = refLength;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -69,12 +78,12 @@ public class Field implements Serializable {
 		return value.get(idx);
 	}
 
-	public String getConvertedValue(int idx) throws NumberFormatException, UnsupportedEncodingException {
+	public String getConvertedValue(int idx) throws Exception {
 		String data = (String) value.get(idx);
 		return this.toPadding(data);
 	}
 
-	public String toPadding(String data) throws NumberFormatException, UnsupportedEncodingException {
+	public String toPadding(String data) throws Exception {
 		String result = data;
 		if ("RPAD".equals(this.getPadType().toUpperCase())) {
 			result = rpad(toEncoding(data), Integer.parseInt(this.getLength()), this.getPadChar());

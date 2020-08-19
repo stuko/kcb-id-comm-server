@@ -20,6 +20,8 @@
 			<body>
 				<field type="C" length="22" name="SSN" padType="rpad"	padChar="#" encode="false" decode="false"/>
 				<field type="C" length="22" name="SSN2" padType="rpad"	padChar="#" encode="false" decode="false"/>
+				<field type="N" length="4" name="TXT_LENGTH" padType="rpad"	padChar="#" encode="false" decode="false"/>
+				<field type="C" refLength="request.body.TXT_LENGTH" name="TXT" padType="rpad" padChar="#" encode="false" decode="false"/>
 			</body>
 			<tail>
 				<field type="C" length="271" name="FILLER" padType="rpad"	padChar=" " encode="false" decode="false"/>

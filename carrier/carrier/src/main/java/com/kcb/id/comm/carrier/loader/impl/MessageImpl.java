@@ -1,6 +1,5 @@
 package com.kcb.id.comm.carrier.loader.impl;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -577,6 +576,78 @@ public class MessageImpl implements Message , MessageFrame {
 				else
 					this.body[i].addValue(bodyMap.get(this.body[i].getName()).toString());
 			}
+		}
+	}
+
+	@Override
+	public int getLength(Field field, MessageInfo messageInfo) throws Exception{
+		if(field.getLength() != null && !"".equals(field.getLength())) {
+			try {
+				int len = Integer.parseInt(field.getLength());
+				return len;
+			}catch(Exception e) {
+				throw new Exception("MessageFieldLengthException");
+			}
+		}else {
+			if(field.getRefLength() != null && !"".equals(field.getRefLength())) {
+				String[] names = field.getRefLength().split(".");
+				if(names.length != 3) throw new Exception("MessageFieldLengthException");
+				else {
+					if("request".equals(names[0])) {
+						int len = getRefLength(names,messageInfo.getRequestMessage());
+						field.setLength(len+"");
+						return len;
+					}else if("response".equals(names[0])) {
+						int len = getRefLength(names,messageInfo.getResponseMessage());
+						field.setLength(len+"");
+						return len;
+					}else {
+						throw new Exception("MessageFieldLengthException");
+					}
+				}
+			}else {
+				throw new Exception("MessageFieldLengthException");
+			}
+		}
+		
+	}
+
+	private int getRefLength(String[] names , Message message) throws Exception {
+		if("header".equals(names[1])) {
+			if(message.getHeader(names[2]) != null && !"".equals(message.getHeader(names[2]))) {
+				try {
+					int len = Integer.parseInt(message.getHeader(names[2]));
+					return len;
+				}catch(Exception e) {
+					throw new Exception("MessageFieldLengthException");
+				}
+			}else {
+				throw new Exception("MessageFieldLengthException");
+			}
+		}else if("body".equals(names[1])) {
+			if(message.getBody(names[2], 0) != null && !"".equals(message.getBody(names[2], 0))) {
+				try {
+					int len = Integer.parseInt(message.getBody(names[2], 0));
+					return len;
+				}catch(Exception e) {
+					throw new Exception("MessageFieldLengthException");
+				}
+			}else {
+				throw new Exception("MessageFieldLengthException");
+			}
+		}else if("tail".equals(names[1])) {
+			if(message.getTail(names[2]) != null && !"".equals(message.getTail(names[2]))) {
+				try {
+					int len = Integer.parseInt(message.getTail(names[2]));
+					return len;
+				}catch(Exception e) {
+					throw new Exception("MessageFieldLengthException");
+				}
+			}else {
+				throw new Exception("MessageFieldLengthException");
+			}							
+		}else {
+			throw new Exception("MessageFieldLengthException");
 		}
 	}
 

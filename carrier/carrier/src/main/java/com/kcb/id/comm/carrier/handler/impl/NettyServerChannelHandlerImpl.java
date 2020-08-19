@@ -219,7 +219,7 @@ public class NettyServerChannelHandlerImpl implements Handler {
 		}
 	}
 
-	public MessageInfo parseMessage(byte[] in, MessageInfo messageInfo) {
+	public MessageInfo parseMessage(byte[] in, MessageInfo messageInfo) throws Exception {
 
 		String currentData = "";
 		String currentPart = "";
@@ -269,9 +269,10 @@ public class NettyServerChannelHandlerImpl implements Handler {
 			for (int i = 0; i < header.length; i++) {
 				Field f = header[i];
 				currentData = f.getName();
-				byte[] buf = new byte[Integer.parseInt(f.getLength())];
+				byte[] buf = new byte[messageInfo.getRequestMessage().getLength(f,messageInfo)];
 				bais.read(buf);
 				String value = new String(buf);
+				f.setValue(value);
 				messageInfo.getRequestMessage().encodeOrDecode(f);
 			}
 
@@ -284,7 +285,7 @@ public class NettyServerChannelHandlerImpl implements Handler {
 				for (int j = 0; j < body.length; j++) {
 					Field f = body[j];
 					currentData = f.getName();
-					byte[] buf = new byte[Integer.parseInt(f.getLength())];
+					byte[] buf = new byte[messageInfo.getRequestMessage().getLength(f,messageInfo)];
 					bais.read(buf);
 					String value = new String(buf);
 					f.addValue(value);
@@ -296,7 +297,7 @@ public class NettyServerChannelHandlerImpl implements Handler {
 			for (int i = 0; i < tail.length; i++) {
 				Field f = tail[i];
 				currentData = f.getName();
-				byte[] buf = new byte[Integer.parseInt(f.getLength())];
+				byte[] buf = new byte[messageInfo.getRequestMessage().getLength(f,messageInfo)];
 				bais.read(buf);
 				String value = new String(buf);
 				f.setValue(value);
