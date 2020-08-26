@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+	<message messageName="FirstMessage" forwardMessageName="SecondMessage"
+	kindCode="" messageCode="" preBean="sampleServiceImpl" postBean="sampleServiceImpl2">
+		<request>
+			<body>
+				<field type="C" isMessageCode="true" length="4" name="MSG_CODE"/>
+				<field type="C" length="22" name="SSN" padType="rpad"	padChar="#" encoder="encoderBean1" decoder="decoderBean1"/>
+				<field type="C" length="22" name="SSN2" padType="rpad"	padChar="#" encoder="encoderBean2" decoder="decoderBean2"/>
+				<field type="N" length="100" name="TXT_LENGTH" padType="lpad"	padChar=" " encoder="" decoder=""/>
+				<field type="C" refLength="request.body.TXT_LENGTH" name="TXT" padType="rpad" padChar="#" encoder="encoderBean3" decoder="decoderBean3"/>
+			</body>
+			<tail>
+				<field type="C" length="271" name="FILLER" padType="rpad"	padChar=" " encoder="encoderBean4" decoder="decoderBean4"/>
+			</tail>
+		</request>
+		<response>
+			<body>
+				<field type="C" length="4" name="NAME" padType="rpad" padChar=" " encoder="encoderBean5" decoder=""/>
+				<field type="C" length="4" name="MSG" isResMessage="true" padType="rpad" padChar=" " encoder="encoderBean5" decoder=""/>
+			</body>
+			<tail>
+				<field type="C" length="8" name="MEMCODE" padType="rpad" padChar=" "/>
+			</tail>
+		</response>
+	</message>
+</SET>

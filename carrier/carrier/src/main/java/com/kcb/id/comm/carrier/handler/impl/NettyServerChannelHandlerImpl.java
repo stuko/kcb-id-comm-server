@@ -1,34 +1,32 @@
 package com.kcb.id.comm.carrier.handler.impl;
 
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.Gson;
 import com.kcb.id.comm.carrier.common.NettyUtils;
+import com.kcb.id.comm.carrier.common.StringUtils;
 import com.kcb.id.comm.carrier.handler.Handler;
 import com.kcb.id.comm.carrier.loader.HandlerInfo;
 import com.kcb.id.comm.carrier.loader.Message;
 import com.kcb.id.comm.carrier.loader.MessageInfo;
 import com.kcb.id.comm.carrier.loader.impl.Field;
 import com.kcb.id.comm.carrier.service.IService;
-import com.kcb.id.comm.carrier.service.IService.Type;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.IllegalReferenceCountException;
 import io.netty.util.ReferenceCountUtil;
 
 @Configuration
@@ -38,29 +36,13 @@ public class NettyServerChannelHandlerImpl implements Handler {
 
 	static Logger logger = LoggerFactory.getLogger(NettyServerChannelHandlerImpl.class);
 
-	boolean sync = true;
+	/*
+	 * 스프링의 어플리케이션 컨텍스트, 빈들을 참조하기 위한 용도
+	 */
 	@Autowired
+	private ApplicationContext context;
+
 	IService service;
-
-	public boolean isSync() {
-		return sync;
-	}
-
-	public void setSync(boolean sync) {
-		this.sync = sync;
-	}
-
-	@Override
-	public void onConnected(ChannelHandlerContext ctx, Map<String, MessageInfo> messageRepository,
-			HandlerInfo handler) {
-		logger.debug("[{}]-----> onConnected..... by {} ", handler.getMessageName() , this.toString());
-	}
-	
-	@Override
-	public void onCompleted(ChannelHandlerContext ctx, byte[] msg , Map<String, MessageInfo> messageRepository,
-			HandlerInfo handler) {
-		logger.debug("[{}]-----> onCompleted..... by {} ", handler.getMessageName(), this.toString());
-	}
 
 	@Override
 	public void onReceived(ChannelHandlerContext ctx, byte[] msg, Map<String, MessageInfo> messageRepository,
@@ -71,29 +53,31 @@ public class NettyServerChannelHandlerImpl implements Handler {
 	private void receive(ChannelHandlerContext ctx, byte[] msg, Map<String, MessageInfo> messageRepository,	HandlerInfo handler) {
 		MessageInfo messageInfo = null;
 		try {
-			logger.debug("##########################");
-			logger.debug("###### RECEIVE ######");
-			logger.debug("##########################");
-			logger.debug("[{}] [{}]-----> onReceived..... by {} ", msg.length, handler.getMessageName(), this.toString());
-			logger.debug("[{}]-----> onReceived..... by {} ", handler.getMessageName(), this.toString());
-			logger.debug("##########################");
-			
-			logger.debug("Handler Name : {} , MessageName : {}", handler.getName(), handler.getMessageName());
-			logger.debug("Handler Forward : {},{},{}", handler.getForward(), handler.getForwardIp(), handler.getForwardPort());
 			messageInfo = messageRepository.get(handler.getMessageName());
-			MessageInfo parsedMsg = this.parseMessage(msg, messageInfo);
-			logger.debug("Parsed Message : {}", parsedMsg.getName());
-			if (handler.getForward() != null && !"".equals(handler.getForward())
-					&& messageRepository.get(handler.getForward()) != null) {
-				logger.debug("Forward Message : {}", handler.getForward());
-				forward(ctx, handler, messageRepository, messageInfo, parsedMsg);
-			} else {
-				logger.debug("Response Message : {}", parsedMsg.getName());
-				response(ctx, handler, parsedMsg);
+			// 요청 전문 파싱
+			MessageInfo parsedMsg = this.parseMessage(msg, true, messageInfo);
+			
+			// 서비스가 있으면 실행 한다.
+			Map<String,Object> resultMap = executeService(handler, parsedMsg);
+			
+			byte[] forwardResult = null;
+			// 포워딩이 필요하면 포워딩 한다.
+			if (StringUtils.chkNull(handler.getForward()) && messageRepository.get(handler.getForward()) != null) {
+				forwardResult = forward(ctx, handler, msg);
+				// 포워드 결과중 response 정보를 맵에 저장 한다.
+				if(forwardResult != null) {
+					// 응답 전문 파싱
+					parsedMsg = this.parseMessage(forwardResult, false, parsedMsg);
+				}
 			}
-
+			resultMap = putQualifiedValueToMap(parsedMsg, resultMap);
+			// 서비스 실행 결과를 입력해 준다.
+			if (resultMap != null && resultMap.size() > 0) {
+				parsedMsg.getResponseMessage().bindValue(resultMap);
+			}
+			sendMessage(ctx, parsedMsg.getResponseMessage());
 		} catch (Exception e) {
-			logger.error(e.toString());
+			logger.error(e.toString(),e);
 			try {
 				if (messageInfo != null) {
 					String exception = e.getClass().getSimpleName();
@@ -109,205 +93,104 @@ public class NettyServerChannelHandlerImpl implements Handler {
 			} catch (Exception ee) {
 				logger.error("Severe Error occurred...." + e.toString() + " in " + ee.toString() + "", ee);
 			}
-		} finally {
-			try {
-				if (ctx != null) {
-					//ctx.flush();
-					//ctx.close();
-				}
-			} catch (Exception e) {}
 		}
 	}
 
-	private void forward(ChannelHandlerContext ctx,HandlerInfo handler, Map<String, MessageInfo> messageRepository, MessageInfo messageInfo,
-			MessageInfo parsedMsg) throws Exception {
-		// messageInfo.getForwardServer() 와 messageInfo.getForwardPort() 로 전문을 그대로 전송한다.
-		MessageInfo forwardMsg = messageRepository.get(handler.getForward());
-		ByteBuf buf = unParseMessage(parsedMsg, forwardMsg);
-		byte[] forwardBytes = new byte[buf.readableBytes()];
-		try {
-			buf.readBytes(forwardBytes);
-			if (buf != null && buf.refCnt() != 0)
-				buf.release();
-
-			if (this.isSync()) {
-				logger.debug("Forward is sync");
-				logger.debug("Forward data is [{}]" , new String(forwardBytes));
-				byte[] responseBytes = NettyUtils.send(handler.getForwardIp(), handler.getForwardPort(),5000, forwardBytes);
-				logger.debug("Forward is completed");
-				if(responseBytes != null) ctx.write(responseBytes);
-				else ctx.close();
-			} else {
-				logger.debug("Forward is async");
-				NettyClient client = new NettyClient();
-				client.send(handler.getForwardIp(), handler.getForwardPort(), forwardBytes, (res) -> {
-					try {
-						final ChannelFuture f = ctx.writeAndFlush(res);
-						f.addListener(new ChannelFutureListener() {
-							@Override
-							public void operationComplete(ChannelFuture future) {
-								assert f == future;
-								if (res != null && res.refCnt() != 0)
-									res.release();
-								ctx.close();
-							}
-						});
-					} catch (IllegalReferenceCountException re) {
-						logger.debug("#### Already flush....######");
-					}
-				});
-			}
-		} catch (Exception e) {
-			throw e;
-		}
+	private Map<String, Object> putQualifiedValueToMap(MessageInfo parsedMsg, Map<String, Object> resultMap) {
+		parsedMsg.getRequestMessage().getHeaderMap().forEach((k,v)->{
+			resultMap.put("request.header."+k,v);
+		});
+		parsedMsg.getRequestMessage().getBodyMap().forEach((k,v)->{
+			resultMap.put("request.body."+k,v);
+		});
+		parsedMsg.getRequestMessage().getTailMap().forEach((k,v)->{
+			resultMap.put("request.tail."+k,v);
+		});
+		parsedMsg.getResponseMessage().getHeaderMap().forEach((k,v)->{
+			resultMap.put("response.header."+k,v);
+		});
+		parsedMsg.getResponseMessage().getBodyMap().forEach((k,v)->{
+			resultMap.put("response.header."+k,v);
+		});
+		parsedMsg.getResponseMessage().getTailMap().forEach((k,v)->{
+			resultMap.put("response.header."+k,v);
+		});
+		return resultMap;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void response(ChannelHandlerContext ctx, HandlerInfo handler, MessageInfo parsedMsg)
-			throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-			ClassNotFoundException, Exception {
-		Map<String, Object> responseMap = new HashMap<>();
-		if (service == null) {
-			logger.debug("Service is Null");
-			if (handler.getBusinessClass() != null) {
-				Object object = Class.forName(handler.getBusinessClass()).getConstructor().newInstance();
-				if (object != null)
-					service = (IService) object;
-			}
-		}
+	private Map<String, Object> executeService(HandlerInfo handler, MessageInfo parsedMsg) throws Exception {
+		service = (IService) context.getBean(handler.getBusinessClass());
 		if (service == null) {
 			throw new Exception("NoServiceException");
 		}
-
-		logger.debug("Service Type is {}", service.getType());
-
-		if (service.getType() == Type.JSON) {
-			Gson gson = new Gson();
-			responseMap = gson.fromJson((String) (service.call(parsedMsg.getRequestMessage().getBodyMap())),
-					responseMap.getClass());
-		} else if (service.getType() == Type.MAP) {
-			responseMap = (Map<String, Object>) (service.call(parsedMsg.getRequestMessage().getBodyMap()));
-		} else if (service.getType() == Type.TCP) {
-			responseMap = (Map<String, Object>) (service.call(parsedMsg.getRequestMessage().getBodyMap()));
-		} else {
-			responseMap = (Map<String, Object>) (service.call(parsedMsg.getRequestMessage().getBodyMap()));
-		}
-
-		if (responseMap != null && responseMap.size() > 0) {
-			parsedMsg.getResponseMessage().setBodyValue(responseMap);
-		}
-
-		logger.debug("Service Response is {}", responseMap);
-
-		sendMessage(ctx, parsedMsg.getResponseMessage(), responseMap);
+		return (Map<String, Object>) (service.call(parsedMsg.getRequestMessage().getBodyMap()));
 	}
 
-	private void sendMessage(ChannelHandlerContext ctx, Message msg, Map<String, Object> responseMap) {
-		Charset charset = Charset.defaultCharset();
+	private byte[] forward(ChannelHandlerContext serverCtx,HandlerInfo handler, byte[] forwardBytes) throws Exception {
 		try {
-			logger.debug("Let's send return message ...");
-			ByteBuf sendBuf = NettyUtils.getMessage2ByteBuf(msg, responseMap);
-			try {
-				logger.debug("ByteBuf 's length is {}", sendBuf.readableBytes());
-				ctx.write(sendBuf);
-				logger.debug("write and flush");
-			} catch (IllegalReferenceCountException re) {
-				logger.debug("#### Already flush....######");
-			}
+			int timeOut = Integer.parseInt(handler.getTimeOut());
+			logger.debug("[{}][{}][{}]",handler.getForward(),handler.getForwardIp(), handler.getForwardPort());
+			return NettyUtils.send(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
 		} catch (Exception e) {
-			logger.error(e.toString(), e);
+			throw new Exception("ForwardException", e);
 		}
 	}
 
-	public MessageInfo parseMessage(byte[] in, MessageInfo messageInfo) throws Exception {
+	private void sendMessage(ChannelHandlerContext ctx, Message msg) throws Exception{
+		ByteBuf sendBuf = msg.toByteBuf();
+		ctx.write(sendBuf);
+	}
 
-		String currentData = "";
-		String currentPart = "";
+	public MessageInfo parseMessage(byte[] in, boolean isRequest, MessageInfo messageInfo) throws Exception {
+
 		ByteArrayInputStream bais = null;
-		MessageInfo msg = messageInfo.newInstance();
+		MessageInfo newMsg = messageInfo.newInstance();
 		try {
-			logger.debug("[{}] Request Original Header's length = {} ", messageInfo.getName(),
-					messageInfo.getRequestMessage().getHeader().length);
-			logger.debug("[{}] Request Target Header's length = {} ", messageInfo.getName(),
-					msg.getRequestMessage().getHeader().length);
-			logger.debug("[{}] Request Original Body's length = {} ", messageInfo.getName(),
-					messageInfo.getRequestMessage().getBody().length);
-			logger.debug("[{}] Request Target Body's length = {} ", messageInfo.getName(),
-					msg.getRequestMessage().getBody().length);
-			logger.debug("[{}] Request Original Tail's length = {} ", messageInfo.getName(),
-					messageInfo.getRequestMessage().getTail().length);
-			logger.debug("[{}] Request Target Tail's length = {} ", messageInfo.getName(),
-					msg.getRequestMessage().getTail().length);
-
-			logger.debug("[{}] Response Original Header's length = {} ", messageInfo.getName(),
-					messageInfo.getResponseMessage().getHeader().length);
-			logger.debug("[{}] Response Target Header's length = {} ", messageInfo.getName(),
-					msg.getResponseMessage().getHeader().length);
-			logger.debug("[{}] Response Original Body's length = {} ", messageInfo.getName(),
-					messageInfo.getResponseMessage().getBody().length);
-			logger.debug("[{}] Response Target Body's length = {} ", messageInfo.getName(),
-					msg.getResponseMessage().getBody().length);
-			logger.debug("[{}] Response Original Tail's length = {} ", messageInfo.getName(),
-					messageInfo.getResponseMessage().getTail().length);
-			logger.debug("[{}] Response Target Tail's length = {} ", messageInfo.getName(),
-					msg.getResponseMessage().getTail().length);
-
-			messageInfo.getExceptionMessageMap().forEach((k, v) -> {
-				if (v.getHeader() != null)
-					logger.debug("[{}] Error Original Header's length = {} ", k, v.getHeader().length);
-			});
-
-			String repeat = messageInfo.getRequestMessage().getRepeat();
-			String repeatVariable = messageInfo.getRequestMessage().getRepeatVariable();
-
-			Field[] header = messageInfo.getRequestMessage().getHeader();
-			Field[] body = messageInfo.getRequestMessage().getBody();
-			Field[] tail = messageInfo.getRequestMessage().getTail();
-			currentPart = "header";
+			Message sourceMsg = isRequest ? messageInfo.getRequestMessage() : messageInfo.getResponseMessage();
+			Message targetMsg = isRequest ? newMsg.getRequestMessage() : newMsg.getResponseMessage();
+			
+			// 이제부터는 새로운 메시지 newMsg 정보를 사용해야 함.
+			Field[] header = targetMsg.getHeader();
+			Field[] body = targetMsg.getBody();
+			Field[] tail = targetMsg.getTail();
 			bais = new ByteArrayInputStream(in);
 
-			for (int i = 0; i < header.length; i++) {
+			// 하드코딩 ^^
+			header[0].setValue(in.length+"");
+
+			for (int i = 1; i < header.length; i++) {
 				Field f = header[i];
-				currentData = f.getName();
-				byte[] buf = new byte[messageInfo.getRequestMessage().getLength(f,messageInfo)];
+				byte[] buf = new byte[targetMsg.getLength(f,targetMsg)];
 				bais.read(buf);
 				String value = new String(buf);
 				f.setValue(value);
-				messageInfo.getRequestMessage().encodeOrDecode(f);
+				targetMsg.encodeOrDecode(f);
+				logger.debug("header's name: {} , value: [{}]", f.getName() , f.getValue());
 			}
 
-			currentPart = "body";
-			int repeatCount = 1;
-			if ("true".equals(repeat)) {
-				repeatCount = Integer.parseInt(repeatVariable);
-			}
-			for (int i = 0; i < repeatCount; i++) {
-				for (int j = 0; j < body.length; j++) {
-					Field f = body[j];
-					currentData = f.getName();
-					byte[] buf = new byte[messageInfo.getRequestMessage().getLength(f,messageInfo)];
-					bais.read(buf);
-					String value = new String(buf);
-					f.addValue(value);
-					messageInfo.getRequestMessage().encodeOrDecode(f, i);
-					msg.getRequestMessage().setBodyValue(f.getName(), value, i);
-				}
-			}
-			currentPart = "tail";
-			for (int i = 0; i < tail.length; i++) {
-				Field f = tail[i];
-				currentData = f.getName();
-				byte[] buf = new byte[messageInfo.getRequestMessage().getLength(f,messageInfo)];
+			for (int i = 0; i < body.length; i++) {
+				Field f = body[i];
+				byte[] buf = new byte[targetMsg.getLength(f,targetMsg)];
 				bais.read(buf);
 				String value = new String(buf);
 				f.setValue(value);
-				messageInfo.getRequestMessage().encodeOrDecode(f);
-				msg.getRequestMessage().getTail()[i].setValue(value);
+				targetMsg.encodeOrDecode(f);
+				logger.debug("body's name: {} , value: [{}]", f.getName() , f.getValue());
+			}
+
+			for (int i = 0; i < tail.length; i++) {
+				Field f = tail[i];
+				byte[] buf = new byte[targetMsg.getLength(f,targetMsg)];
+				bais.read(buf);
+				String value = new String(buf);
+				f.setValue(value);
+				targetMsg.encodeOrDecode(f);
+				logger.debug("tail's name: {} , value: [{}]", f.getName() , f.getValue());				
 			}
 			bais.close();
 			bais = null;
 		} catch (Exception e) {
-			logger.error(e.toString(), e);
+			throw new Exception("MessageParseException [" + e.getStackTrace()[0].getClassName() + ":" + e.getStackTrace()[0].getLineNumber() + "]", e);
 		} finally {
 			try {
 				if (bais != null)
@@ -319,62 +202,7 @@ public class NettyServerChannelHandlerImpl implements Handler {
 			} catch (Exception e) {
 			}
 		}
-		return msg;
+		return newMsg;
 	}
-
-	/*
-	 * source 의 전문 데이터를 target의 전문데이터로 만들어 바이트 배열로 리던해 주는 메서드
-	 */
-	public ByteBuf unParseMessage(MessageInfo source, MessageInfo target) {
-
-		String currentData = "";
-		String currentPart = "";
-		ByteBufInputStream bbs = null;
-		MessageInfo msg = target.newInstance();
-		try {
-			String repeat = source.getRequestMessage().getRepeat();
-			String repeatVariable = source.getRequestMessage().getRepeatVariable();
-
-			Field[] header = target.getRequestMessage().getHeader();
-			Field[] body = target.getRequestMessage().getBody();
-			Field[] tail = target.getRequestMessage().getTail();
-
-			currentPart = "header";
-			for (int i = 0; i < header.length; i++) {
-				Field f = header[i];
-				currentData = f.getName();
-				String value = source.getRequestMessage().getHeader(currentData);
-				logger.debug("HEADER : {} is {{}}", f.getName(), value);
-				msg.getRequestMessage().getHeader()[i].setValue(value);
-			}
-
-			currentPart = "body";
-			int repeatCount = 1;
-			if ("true".equals(repeat)) {
-				repeatCount = Integer.parseInt(repeatVariable);
-			}
-			for (int i = 0; i < repeatCount; i++) {
-				for (int j = 0; j < body.length; j++) {
-					Field f = body[j];
-					currentData = f.getName();
-					String value = source.getRequestMessage().getBody(currentData, i);
-					logger.debug("BODY : {} is {{}}", f.getName(), value);
-					msg.getRequestMessage().setBodyValue(currentData, value, i);
-				}
-			}
-			currentPart = "tail";
-			for (int i = 0; i < tail.length; i++) {
-				Field f = tail[i];
-				currentData = f.getName();
-				String value = source.getRequestMessage().getTail(currentData);
-				logger.debug("TAIL : {} is {{}}", f.getName(), value);
-				msg.getRequestMessage().getTail()[i].setValue(value);
-			}
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-		} finally {
-		}
-		return msg.getRequestMessage().toByteBuf();
-	}
-
+	
 }

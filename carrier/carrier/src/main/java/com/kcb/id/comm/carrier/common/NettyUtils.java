@@ -16,13 +16,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.kcb.id.comm.carrier.handler.impl.NettyClient;
 import com.kcb.id.comm.carrier.loader.Message;
 import com.kcb.id.comm.carrier.loader.impl.Field;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.util.IllegalReferenceCountException;
 
 /*
  * Netty 관련한 유틸리티 클래스
@@ -38,10 +36,6 @@ public class NettyUtils {
 			"h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B",
 			"C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
 			"X", "Y", "Z" };
-
-	public static void releaseBuf(ByteBuf byteBuf) {
-		
-	}
 	
 	/*
 	 * 현재 날짜를 입력한 포맷으로 보여 주는 메서드
@@ -112,15 +106,9 @@ public class NettyUtils {
 			Field f = header[i];
 			sb.append(getRandomString(Integer.parseInt(f.getLength())));
 		}
-		int repeatCount = 1;
-		if ("true".equals(message.getRepeat())) {
-			repeatCount = Integer.parseInt(message.getRepeatVariable());
-		}
-		for (int i = 0; i < repeatCount; i++) {
-			for (int j = 0; j < body.length; j++) {
-				Field f = body[j];
-				sb.append(getRandomString(Integer.parseInt(f.getLength())));
-			}
+		for (int i = 0; i < body.length; i++) {
+			Field f = body[i];
+			sb.append(getRandomString(Integer.parseInt(f.getLength())));
 		}
 		for (int i = 0; i < tail.length; i++) {
 			Field f = tail[i];
@@ -168,29 +156,23 @@ public class NettyUtils {
 			String v = map.get(f.getName()) == null ?  fill(' ',Integer.parseInt(f.getLength())): (String)map.get(f.getName());
 			f.setValue(v);
 			f.toPadding();
-			f = message.encodeOrDecode(f);
+			f = message.encodeOrDecode(f,message);
 			buf.writeBytes(f.getValueBytes());
 		}
-		int repeatCount = 1;
-		if ("true".equals(message.getRepeat())) {
-			repeatCount = Integer.parseInt(message.getRepeatVariable());
-		}
-		for (int i = 0; i < repeatCount; i++) {
-			for (int j = 0; j < body.length; j++) {
-				Field f = body[j];
-				String v = map.get(f.getName()) == null ?  fill(' ',Integer.parseInt(f.getLength())): (String)map.get(f.getName());
-				f.setValue(v);
-				f.toPadding();
-				f = message.encodeOrDecode(f);
-				buf.writeBytes(f.getValueBytes());
-			}
+		for (int i = 0; i < body.length; i++) {
+			Field f = body[i];
+			String v = map.get(f.getName()) == null ?  fill(' ',Integer.parseInt(f.getLength())): (String)map.get(f.getName());
+			f.setValue(v);
+			f.toPadding();
+			f = message.encodeOrDecode(f,message);
+			buf.writeBytes(f.getValueBytes());
 		}
 		for (int i = 0; i < tail.length; i++) {
 			Field f = tail[i];
 			String v = map.get(f.getName()) == null ?  fill(' ',Integer.parseInt(f.getLength())): (String)map.get(f.getName());
 			f.setValue(v);
 			f.toPadding();
-			f = message.encodeOrDecode(f);
+			f = message.encodeOrDecode(f,message);
 			buf.writeBytes(f.getValueBytes());
 		}
 		return buf;
@@ -203,29 +185,19 @@ public class NettyUtils {
 		DataOutputStream os = null;
 		DataInputStream is = null;
 		try {
-			logger.debug("IP = {} , PORT = {}", host, port);
 			socket = new Socket(host, port);
-			logger.debug("New Socket...");
 			socket.setSoTimeout(timeout);
-			logger.debug("set time out = {}",timeout);
 			o = socket.getOutputStream();
-			logger.debug("ready to outputstream");
 			i = socket.getInputStream();
-			logger.debug("ready to inputstream");
 			is = new DataInputStream(i);
 			os = new DataOutputStream(o);
-			logger.debug("ready to buffered i/o stream");
 			os.write(msg);
-			logger.debug("write...");
 			os.flush();
-			logger.debug("write flush");
 			byte[] data = new byte[256];
 			int len = 0;
 			List<byte[]> byteArray = new ArrayList<>();
 			int totalLen = 0;
-			logger.debug("ok let's receive from server");
 			while ((len = is.read(data)) > 0) {
-				logger.info("read byte is {}", len);
 				byte[] readBuffer = new byte[len];
 				System.arraycopy(data, 0, readBuffer, 0, len);
 				byteArray.add(readBuffer);
@@ -233,7 +205,6 @@ public class NettyUtils {
 				if(len <= 256)break;
 				data = new byte[256];
 			}
-			logger.debug("right .. we read all of bytes {}" , totalLen);
 			os.close();
 			is.close();
 			socket.close();
@@ -332,20 +303,6 @@ public class NettyUtils {
 	public static void main(String[] args) {
 		try {
 			System.out.println("["+new String(NettyUtils.send("192.168.57.163", 9006, 5000, "TESTASFDSFARERASER".getBytes()))+"]");
-			/*
-			NettyClient client = new NettyClient();
-			client.send("192.168.57.163", 9007, "TESTASFDSFARERASER".getBytes(), (res) -> {
-				try {
-					System.out.println("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
-					byte[] bytes = new byte[res.readableBytes()];
-					res.readBytes(bytes);
-					System.out.println(new String(bytes));
-				} catch (IllegalReferenceCountException re) {
-					logger.debug("#### Already flush....######");
-				}
-			})
-			;
-			*/
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.kcb.id.comm.carrier.common.StringUtils;
 import com.kcb.id.comm.carrier.loader.HandlerInfo;
 import com.kcb.id.comm.carrier.loader.impl.HandlerInfoImpl;
 import com.kcb.id.comm.carrier.parser.HandlerInfoParser;
@@ -20,7 +21,7 @@ public class HandlerInfoParserImpl  implements HandlerInfoParser {
 
 	static Logger logger = LoggerFactory.getLogger(HandlerInfoParserImpl.class);
 	@Override
-	public List<HandlerInfo> parse(NodeList nodeList) {
+	public List<HandlerInfo> parse(NodeList nodeList) throws Exception {
 		List<HandlerInfo> list = new ArrayList<>();
 		HandlerInfo handlerInfo = null;
 		for (int i = 0; i < nodeList.getLength(); i++) {
@@ -40,14 +41,16 @@ public class HandlerInfoParserImpl  implements HandlerInfoParser {
 							subNodeList.item(j).getAttributes().getNamedItem("messageName").getNodeValue());
 					handlerInfo.setHandlerClass(
 							subNodeList.item(j).getAttributes().getNamedItem("handlerClass").getNodeValue());
-					handlerInfo.setEnable(Boolean.getBoolean(subNodeList.item(j).getAttributes().getNamedItem("enable").getNodeValue()));
 					handlerInfo.setBusinessClass(
 							subNodeList.item(j).getAttributes().getNamedItem("businessClass").getNodeValue());
+
+					handlerInfo.setTimeOut(
+							subNodeList.item(j).getAttributes().getNamedItem("timeOut").getNodeValue());
 
 					handlerInfo.setForward(subNodeList.item(j).getAttributes().getNamedItem("forward") == null ? "" : subNodeList.item(j).getAttributes().getNamedItem("forward").getNodeValue());
 					handlerInfo.setForwardIp(subNodeList.item(j).getAttributes().getNamedItem("forwardIp") == null ? "" : subNodeList.item(j).getAttributes().getNamedItem("forwardIp").getNodeValue());
 					String sPort = subNodeList.item(j).getAttributes().getNamedItem("forwardPort") == null ? "" : subNodeList.item(j).getAttributes().getNamedItem("forwardPort").getNodeValue();
-					if(sPort != null && !"".equals(sPort)) handlerInfo.setForwardPort(Integer.parseInt(sPort));
+					if(StringUtils.chkNull(sPort)) handlerInfo.setForwardPort(Integer.parseInt(sPort));
 					
 					if(subNodeList.item(j).hasChildNodes()) {
 						NodeList subSubNodeList = subNodeList.item(j).getChildNodes();
@@ -58,7 +61,7 @@ public class HandlerInfoParserImpl  implements HandlerInfoParser {
 								logger.debug("error node exists");
 								String exception = subSubNodeList.item(k).getAttributes().getNamedItem("name").getNodeValue();
 								parser = new FieldParser();
-								handlerInfo.getExceptionMessageMap().put(exception, parser.parseFields(subSubNodeList.item(k)));
+								handlerInfo.getExceptionMessageMap().put(exception, parser.parseFields(subSubNodeList.item(k),false));
 							}
 						}
 					}

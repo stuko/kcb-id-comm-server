@@ -25,6 +25,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 import com.kcb.id.comm.carrier.common.NettyUtils;
+import com.kcb.id.comm.carrier.common.StringUtils;
 import com.kcb.id.comm.carrier.core.Carrier;
 import com.kcb.id.comm.carrier.handler.Handler;
 import com.kcb.id.comm.carrier.handler.impl.NettyAdapter;
@@ -174,8 +175,8 @@ public class CarrierImpl implements Carrier {
 	 * ServerInfo 정보를 가지고, Netty TCP 통신 서버를 실행 한다.
 	 */
 	public void start(ServerInfo server) {
-		EventLoopGroup bossGroup = new NioEventLoopGroup(); 
-		EventLoopGroup workerGroup = new NioEventLoopGroup();
+		EventLoopGroup bossGroup = new NioEventLoopGroup(this.getBoss()); 
+		EventLoopGroup workerGroup = new NioEventLoopGroup(this.getWorker());
 		try {
 			ServerBootstrap b = new ServerBootstrap(); 
 			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class) 
@@ -184,25 +185,9 @@ public class CarrierImpl implements Carrier {
 						protected void initChannel(SocketChannel ch) throws Exception {
 							ch.pipeline().addLast(
 								new NettyAdapter() {
-									public void onConnected(ChannelHandlerContext ctx) {
-										logger.debug("{} -> {}:{} is connected",this.toString(), server.getIP(),server.getPort());
-										String handlerClass = getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getHandlerClass();
+									public void onReceived(ChannelHandlerContext ctx,int msgLength, byte[] msg) {
 										try {
-											Object object = context.getBean(handlerClass);
-											if(object != null) {
-												((Handler)object).onConnected(ctx
-														, getMessageInfoLoader().getMessageRepository()
-														, getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()));
-											}
-										} catch (Exception e) {
-											logger.error(e.toString(),e);
-										}
-									}
-									public void onReceived(ChannelHandlerContext ctx, byte[] msg) {
-										logger.debug("{}:{} is received",server.getIP(),server.getPort());
-										String handlerClass = getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getHandlerClass();
-										try {
-											Object object = context.getBean(handlerClass);
+											Object object = context.getBean(getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getHandlerClass());
 											if(object != null) {
 												((Handler)object).onReceived(ctx
 														, msg
@@ -215,14 +200,11 @@ public class CarrierImpl implements Carrier {
 												MessageInfo messageInfo = getMessageInfoLoader().getMessageRepository().get(getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getMessageName());
 												if (messageInfo != null) {
 													String exception = e.getClass().getSimpleName();
-													logger.debug("[{}] Exception and choice {} " ,messageInfo.getName(), exception);
-													logger.debug("Exception Map is {} " , messageInfo.getExceptionMessageMap());
 													Message exMsg = messageInfo.getExceptionMessageMap().get(exception);
 													if(exMsg != null) {
-														logger.debug("Exception and find error message");
 														ByteBuf buf = exMsg.toByteBuf();
 														ctx.write(buf);
-														if (buf != null && buf.refCnt() != 0)
+														if (buf != null && buf.refCnt() > 0)
 															buf.release();
 													}
 												}
@@ -231,23 +213,6 @@ public class CarrierImpl implements Carrier {
 											}
 										}
 																				
-									}
-									public void onCompleted(ChannelHandlerContext ctx, byte[] msg) {
-										logger.debug("{}:{} is completed",server.getIP(),server.getPort());
-										String handlerClass = getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()).getHandlerClass();
-										try {
-											Object object = context.getBean(handlerClass);
-											if(object != null) {
-												((Handler)object).onCompleted(ctx
-														, msg
-														, getMessageInfoLoader().getMessageRepository()
-														, getHandlerInfoLoader().getHandlerRepository().get(server.getHandlerName()));
-											}
-										} catch (Exception e) {
-											logger.error(e.toString(),e);
-											
-										}
-										
 									}
 								}
 							);
@@ -337,7 +302,7 @@ public class CarrierImpl implements Carrier {
 
 	public void startAll() {
 		
-		if(this.getServerPath() != null && !"".equals(this.getServerPath().trim())) {
+		if(StringUtils.chkNull(this.getServerPath())) {
 			try {
 				logger.debug("Server xml path exists... {}", this.getServerPath());
 				this.getServerInfoLoader().setLoaderFilePath(this.getServerPath());
@@ -352,7 +317,7 @@ public class CarrierImpl implements Carrier {
 				logger.error(e.toString(),e);
 			}
 		}
-		if(this.getMessagePath() != null && !"".equals(this.getMessagePath().trim())) {
+		if(StringUtils.chkNull(this.getMessagePath())) {
 			try {
 				logger.debug("Message xml path exists... {}", this.getMessagePath());
 				this.getMessageInfoLoader().setLoaderFilePath(this.getMessagePath());
@@ -367,7 +332,7 @@ public class CarrierImpl implements Carrier {
 				logger.error(e.toString(),e);
 			}
 		}
-		if(this.getHandlerPath() != null && !"".equals(this.getHandlerPath().trim())) {
+		if(StringUtils.chkNull(this.getHandlerPath())) {
 			try {
 				logger.debug("Handler xml path exists... {}", this.getHandlerPath());
 				this.getHandlerInfoLoader().setLoaderFilePath(this.getHandlerPath());

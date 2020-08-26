@@ -10,31 +10,21 @@ import com.kcb.id.comm.carrier.loader.Message;
 @Scope("prototype")
 public class CypherImpl implements Cypher{
 	
-	Message message;
-	
-	public Message getMessage() {
-		return message;
-	}
-
-	public void setMessage(Message message) {
-		this.message = message;
-	}
-
 	@Override
-	public String encode(String data) {
+	public String encode(String data , Message msg) {
 		// 암호화
-		// this.getMessage().getBody("",0);
-		// this.getMessage().getHeader("");
-		// this.getMessage().getTail("");
+		// msg.getBody("");
+		// msg.getHeader("");
+		// msg.getTail("");
 		return null;
 	}
 
 	@Override
-	public String decode(String data) {
+	public String decode(String data , Message msg) {
 		// 복호화
-		// this.getMessage().getBody("",0);
-		// this.getMessage().getHeader("");
-		// this.getMessage().getTail("");
+		// msg.getBody("");
+		// msg.getHeader("");
+		// msg.getTail("");
 		return null;
 	}
 

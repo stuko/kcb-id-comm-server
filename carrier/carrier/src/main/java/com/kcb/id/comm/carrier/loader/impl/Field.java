@@ -2,8 +2,6 @@ package com.kcb.id.comm.carrier.loader.impl;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +16,7 @@ public class Field implements Serializable {
 	private static final long serialVersionUID = 1L;
 	String length;
 	String name;
-	List<Object> value;
+	String value;
 	String encode;
 	String decode;
 	String padType;
@@ -30,11 +28,6 @@ public class Field implements Serializable {
 	String refLength;
 	
 	public Field() {
-		value = new ArrayList<>();
-	}
-
-	public void init() {
-		value.clear();
 	}
 
 	public String getCharType() {
@@ -73,16 +66,6 @@ public class Field implements Serializable {
 		return value;
 	}
 
-	public Object getValue(int idx) {
-		if(idx >= value.size()) return "";
-		return value.get(idx);
-	}
-
-	public String getConvertedValue(int idx) throws Exception {
-		String data = (String) value.get(idx);
-		return this.toPadding(data);
-	}
-
 	public String toPadding(String data) throws Exception {
 		String result = data;
 		if ("RPAD".equals(this.getPadType().toUpperCase())) {
@@ -96,28 +79,14 @@ public class Field implements Serializable {
 	}
 
 	public void toPadding() throws NumberFormatException, UnsupportedEncodingException {
-		String result = (String) this.getValue(0);
 		if(this.getPadType() == null) return;
 		if ("RPAD".equals(this.getPadType().toUpperCase())) {
-			result = rpad(toEncoding(result), Integer.parseInt(this.getLength()), this.getPadChar());
+			this.setValue(rpad(toEncoding(value), Integer.parseInt(this.getLength()), this.getPadChar()));
 		} else if ("LPAD".equals(this.getPadType().toUpperCase())) {
-			result = lpad(toEncoding(result), Integer.parseInt(this.getLength()), this.getPadChar());
+			this.setValue(lpad(toEncoding(value), Integer.parseInt(this.getLength()), this.getPadChar()));
 		} else {
-			result = rpad(toEncoding(result), Integer.parseInt(this.getLength()), this.getPadChar());
+			this.setValue(rpad(toEncoding(value), Integer.parseInt(this.getLength()), this.getPadChar()));
 		}
-		this.setValue(result);
-	}
-
-	public void toPadding(int i) throws NumberFormatException, UnsupportedEncodingException {
-		String result = (String) this.getValue(i);
-		if ("RPAD".equals(this.getPadType().toUpperCase())) {
-			result = rpad(toEncoding(result), Integer.parseInt(this.getLength()), this.getPadChar());
-		} else if ("LPAD".equals(this.getPadType().toUpperCase())) {
-			result = lpad(toEncoding(result), Integer.parseInt(this.getLength()), this.getPadChar());
-		} else {
-			result = rpad(toEncoding(result), Integer.parseInt(this.getLength()), this.getPadChar());
-		}
-		this.setValue(i, result);
 	}
 
 	public String toEncoding(String data) throws UnsupportedEncodingException {
@@ -128,22 +97,8 @@ public class Field implements Serializable {
 		}
 	}
 
-	public void setValue(Object value) {
-		if (this.value.size() == 0)
-			this.value.add(value);
-		else
-			this.value.set(0, value);
-	}
-
-	public void setValue(int idx, Object value) {
-		if (this.value.size() == 0)
-			this.value.add(value);
-		else
-			this.value.set(idx, value);
-	}
-
-	public void addValue(Object value) {
-		this.value.add(value);
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	public String getEncode() {
@@ -230,7 +185,7 @@ public class Field implements Serializable {
 	}
 
 	public String toRaw() {
-		return this.getName() + " " + this.getLength() + " " + this.getEncode();
+		return "[" + this.getName() + "][" + this.getLength() + "][" + this.getRef() + "][" + this.getRefLength() + "][" + this.getEncode() + "]";
 	}
 	
 	public byte[] getBytes() {
@@ -238,18 +193,7 @@ public class Field implements Serializable {
 	}
 	
 	public byte[] getValueBytes() {
-		return this.getValueBytes(0);
-	}
-
-	public byte[] getValueBytes(int idx) {
-		byte[] t = this.getBytes();
-		if(this.getValue(idx) == null) {
-			return t; 
-		}
-		byte[] src = ((String)this.getValue(idx)).getBytes();
-		int copyLen = src.length > t.length ? t.length : src.length;
-		System.arraycopy(src , 0, t, 0, copyLen);
-		return t;
+		return this.getValueBytes(value);
 	}
 	
 	public byte[] getValueBytes(String value) {

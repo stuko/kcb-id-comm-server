@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="euc-kr"?>
 <SET>
 	<handler handlerName="ForwardHandler"
-		messageName="FirstMessage" enable="true"
-		handlerClass="nettyServerChannelHandlerImpl" businessClass=""
+		messageName="FirstMessage"
+		handlerClass="nettyServerChannelHandlerImpl" 
+		businessClass="sampleServiceImpl"
 		forward="SecondMessage"
 		forwardIp="192.168.57.163"
-		forwardPort="9007">
+		forwardPort="9007"
+		timeOut="5000">
 		<error name="NotRegisteredMessageException">
 			<header>
 				<field type="C" length="4" name="CODE" value="H001" />
@@ -50,8 +52,10 @@
 	</handler>
 
 	<handler handlerName="ReceiveHandler"
-		messageName="SecondMessage" enable="true"
-		handlerClass="nettyServerChannelHandlerImpl" businessClass="">
+		messageName="SecondMessage"
+		handlerClass="nettyServerChannelHandlerImpl" 
+		businessClass="sampleServiceImpl"
+		timeOut="5000">
 		<error name="NotRegisteredMessageException">
 			<header>
 				<field type="C" length="4" name="CODE" value="H001" />

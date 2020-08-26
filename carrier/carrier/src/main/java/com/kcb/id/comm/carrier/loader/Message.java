@@ -34,23 +34,15 @@ public interface Message  extends SelfChecker{
 
 	String getHeader(int idx);
 
-	String getBody(int idx, int row);
+	String getBody(int idx);
 
 	String getTail(int idx);
 
 	String getHeader(String name);
 
-	String getBody(String name, int row);
+	String getBody(String name);
 
 	String getTail(String name);
-
-	String getRepeat();
-
-	void setRepeat(String repeat);
-
-	String getRepeatVariable();
-
-	void setRepeatVariable(String repeatVariable);
 
 	String getHandlerName();
 
@@ -64,63 +56,32 @@ public interface Message  extends SelfChecker{
 
 	void setMessageKey(String messageKey);
 
-	String getPath();
-
-	void setPath(String path);
-
-	String toRaw() throws Exception;
-
-	String header2Raw();
-
-	String body2Raw();
-
-	String tail2Raw();
-
 	ByteBuf toByteBuf();
+	
+	ByteBuf toByteBuf(Message msg);
 
 	Map<String, Object> toHashMap();
 
-	Object getBodyMapOfCount(int repeatCount);
-
 	Map<String, Object> getBodyMap();
-
-	Map[] getBodyMap(int repeatCount);
 
 	Map<String, Object> getTailMap();
 
 	Map<String, Object> getHeaderMap();
 
-	StringBuilder getMessageBuffer();
-
-	void setMessageBuffer(StringBuilder messageBuffer);
-
 	String getHeaderValue(String name);
-
 	void setHeaderValue(String name, String value);
-
 	String getTailValue(String name);
-
 	void setTailValue(String name, String value);
-
-	String getBodyValue(String name, int index);
-
-	void setBodyValue(String name, String value, int index);
+	String getBodyValue(String name);
+	void setBodyValue(String name, String value);
 	
-	void setBodyValue(Map<String,Object> bodyMap);
-
+	Map<String,Object> bindValue(Map<String,Object> bodyMap);
 	MessageInfo clone();
-
 	Field encodeOrDecode(Field f) throws Exception;
-
-	Field encodeOrDecode(Field f, int idx) throws Exception;
-
+	Field encodeOrDecode(Field f, Message msg) throws Exception;
 	String getDestinationIp();
-
 	void setDestinationIp(String destinationIp);
-
 	String getDestinationPort();
-
 	void setDestinationPort(String destinationPort);
-	
-	int getLength(Field field, MessageInfo messageInfo) throws Exception;
+	int getLength(Field field, Message message) throws Exception;
 }

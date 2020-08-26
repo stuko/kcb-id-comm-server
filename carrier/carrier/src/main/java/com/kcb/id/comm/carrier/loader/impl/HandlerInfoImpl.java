@@ -10,9 +10,9 @@ public class HandlerInfoImpl extends ForwardImpl implements HandlerInfo {
 	
 	String handlerName;
 	String messageName;
-	boolean enable;
 	String handlerClass;
 	String businessClass;
+	String timeOut;
 	Map<String,Message> exceptionMessageMap = new HashMap<>();
 	
 	public String getName() {
@@ -20,12 +20,6 @@ public class HandlerInfoImpl extends ForwardImpl implements HandlerInfo {
 	}
 	public void setName(String handlerName) {
 		this.handlerName = handlerName;
-	}
-	public boolean isEnable() {
-		return enable;
-	}
-	public void setEnable(boolean enable) {
-		this.enable = enable;
 	}
 	public String getMessageName() {
 		return messageName;
@@ -50,6 +44,12 @@ public class HandlerInfoImpl extends ForwardImpl implements HandlerInfo {
 	}
 	public void setExceptionMessageMap(Map<String, Message> exceptionMessageMap) {
 		this.exceptionMessageMap = exceptionMessageMap;
+	}
+	public String getTimeOut() {
+		return timeOut;
+	}
+	public void setTimeOut(String timeOut) {
+		this.timeOut = timeOut;
 	}
 	
 }

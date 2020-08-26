@@ -28,12 +28,8 @@ public class SampleServiceImpl implements IService{
 	@Autowired
 	CarrierMapper carrierMapper;
 	
-	Type type = Type.MAP;
-	
 	@PostConstruct
     public void init() {
-        // carrierMapper.createTestTable(null);
-        // carrierMapper.insertTestData(null);
     }
 	
 	@Override
@@ -46,14 +42,6 @@ public class SampleServiceImpl implements IService{
 		m.put("SSN","12345678");
 		System.out.println("############# Call service");
 		return m;
-	}
-
-	public Type getType() {
-		return type;
-	}
-
-	public void setType(Type type) {
-		this.type = type;
 	}
 
 }

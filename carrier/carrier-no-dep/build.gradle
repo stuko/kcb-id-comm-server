@@ -1,0 +1,35 @@
+plugins {
+	id 'java'
+}
+
+group = 'com.kcb.id.comm'
+version = '0.0.1-SNAPSHOT'
+
+compileJava {
+    options.fork = true
+    options.forkOptions.javaHome = file('C:/Program Files/RedHat/java-11-openjdk-11.0.8-2')
+    targetCompatibility = 11
+    sourceCompatibility = 11
+}
+
+repositories {
+	mavenCentral()
+}
+
+apply plugin: "war"
+war {
+    baseName = 'kcb-id-comm-carrier-mvc'
+    version = '1.0.0-BUILD-SNAPSHOT'
+}
+
+dependencies {
+	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'org.springframework:spring-context:5.2.8.RELEASE'
+    implementation 'org.springframework:spring-webmvc:5.2.8.RELEASE'
+	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    
+}
+
+test {
+	useJUnitPlatform()
+}

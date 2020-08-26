@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+	<request>
+		<header>
+			<field type="B" length="4" name="LENGTH"/>
+			<field type="C" length="9" name="TRANSACTION_CODE"/>
+			<field type="C" length="8" name="MEM_CODE"/>
+			<field type="C" length="4" name="MSG_TYPE_CODE" isKindCode="true" />
+			<field type="C" length="3" name="MSG_WORK_CODE"/>
+			<field type="C" length="1" name="FLAG"/>
+			<field type="C" length="4" name="RES_CODE"/>
+			<field type="N" length="7" name="KCB_MSG_MGT_NUM"/>
+			<field type="N" length="14" name="KCB_MSG_SEND_TIME"/>
+			<field type="N" length="7" name="MEM_MSG_MGT_NUM"/>
+			<field type="N" length="14" name="MEM_MSG_SEND_TIME"/>
+			<field type="C" length="16" name="KCB_SYS_INFO"/>
+			<field type="B" length="43" name="FILLER"/>
+		</header>
+	</request>
+	<response>
+		<header>
+			<field type="B" length="4" name="LENGTH"/>
+			<field type="C" length="9" name="TRANSACTION_CODE" ref="request.header.TRANSACTION_CODE" />
+			<field type="C" length="8" name="ORG_CODE" ref="request.header.MEM_CODE" />
+			<field type="C" length="4" name="MSG_TYPE_CODE" ref="request.header.MSG_TYPE_CODE" />
+			<field type="C" length="3" name="MSG_WORK_CODE" ref="request.header.MSG_WORK_CODE" />
+			<field type="C" length="1" name="FLAG" ref="request.header.FLAG"/>
+			<field type="C" length="4" name="RES_CODE" isResCode="true"/>
+			<field type="N" length="7" name="KCB_MSG_MGT_NUM" ref="request.header.KCB_MSG_MGT_NUM"/>
+			<field type="N" length="14" name="KCB_MSG_SEND_TIME" ref="request.header.KCB_MSG_SEND_TIME"/>
+			<field type="N" length="7" name="MEM_MSG_MGT_NUM" ref="request.header.MEM_MSG_MGT_NUM"/>
+			<field type="N" length="14" name="MEM_MSG_SEND_TIME" ref="request.header.MEM_MSG_SEND_TIME"/>
+			<field type="C" length="16" name="KCB_SYS_INFO" ref="request.header.KCB_SYS_INFO"/>
+			<field type="B" length="43" name="FILLER"/>
+		</header>
+	</response>
+</SET>

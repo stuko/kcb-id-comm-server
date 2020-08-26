@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -24,7 +23,7 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 
 	static Logger logger = LoggerFactory.getLogger(MessageInfoParserImpl.class);
 
-	public List<MessageInfo> parse(NodeList nodeList) {
+	public List<MessageInfo> parse(NodeList nodeList) throws Exception{
 		List<MessageInfo> list = new ArrayList<>();
 		NodeList setNodeList = nodeList.item(0).getChildNodes();
 		for (int i = 0; i < setNodeList.getLength(); i++) {
@@ -45,15 +44,12 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 					continue;
 				
 				if (subNodeList.item(j).getNodeName().equals("request")) {
-					logger.debug("request node exists");
-					receiverInfo.setRequestMessage(getRequestMessage(subNodeList, j));
+					receiverInfo.setRequestMessage(getMessage(subNodeList, j , true));
 				} else if (subNodeList.item(j).getNodeName().equals("response")) {
-					logger.debug("response node exists");
-					receiverInfo.setResponseMessage(getRequestMessage(subNodeList, j));
+					receiverInfo.setResponseMessage(getMessage(subNodeList, j, false));
 				} else if (subNodeList.item(j).getNodeName().equals("error")) {
-					logger.debug("error node exists");
 					String exception = subNodeList.item(j).getAttributes().getNamedItem("name").getNodeValue();
-					receiverInfo.getExceptionMessageMap().put(exception, getRequestMessage(subNodeList, j));
+					receiverInfo.getExceptionMessageMap().put(exception, getMessage(subNodeList, j, false));
 				}
 			}
 			if (receiverInfo.getRequestMessage().checkMe()) {
@@ -63,36 +59,18 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 		return list;
 	}
 
-	private Message getRequestMessage(NodeList subNodeList, int j) {
+	private Message getMessage(NodeList subNodeList, int j , boolean isRequest) throws Exception{
 		Message parsedMsg = new MessageImpl();
-		String repeat = subNodeList.item(j).getAttributes().getNamedItem("repeat") == null ? "false"
-				: subNodeList.item(j).getAttributes().getNamedItem("repeat").getNodeValue();
-		String repeat_variable = subNodeList.item(j).getAttributes().getNamedItem("repeatVariable") == null ? ""
-				: subNodeList.item(j).getAttributes().getNamedItem("repeatVariable").getNodeValue();
 		String encoder = subNodeList.item(j).getAttributes().getNamedItem("encoder") == null ? "false"
 				: subNodeList.item(j).getAttributes().getNamedItem("encoder").getNodeValue();
 		String decoder = subNodeList.item(j).getAttributes().getNamedItem("decoder") == null ? "false"
 				: subNodeList.item(j).getAttributes().getNamedItem("decoder").getNodeValue();
-		String path = subNodeList.item(j).getAttributes().getNamedItem("path") == null ? ""
-				: subNodeList.item(j).getAttributes().getNamedItem("path").getNodeValue();
-		if (subNodeList.item(j).getAttributes().getNamedItem("destinationIp") != null
-				&& subNodeList.item(j).getAttributes().getNamedItem("destinationPort") != null) {
-			parsedMsg
-					.setDestinationIp(subNodeList.item(j).getAttributes().getNamedItem("destinationIp").getNodeValue());
-			parsedMsg.setDestinationPort(
-					subNodeList.item(j).getAttributes().getNamedItem("destinationPort").getNodeValue());
-		}
-		parsedMsg.setRepeat(repeat);
-		parsedMsg.setRepeatVariable(repeat_variable);
-
 		if (encoder != null && !"false".equals(encoder)) {
 			parsedMsg.setEncoder(encoder);
 		}
 		if (decoder != null && !"false".equals(decoder)) {
 			parsedMsg.setDecoder(decoder);
 		}
-		parsedMsg.setPath(path);
-
 		NodeList subSubNodeList = subNodeList.item(j).getChildNodes();
 		FieldParser parser = null;
 		for (int k = 0; k < subSubNodeList.getLength(); k++) {
@@ -103,7 +81,7 @@ public class MessageInfoParserImpl implements MessageInfoParser {
 			Field[] fields = null;
 			Node subSubNode = subSubNodeList.item(k);
 			parser = new FieldParser();
-			parsedMsg = parser.parseFields(parsedMsg, subSubNode);
+			parsedMsg = parser.parseFields(parsedMsg, subSubNode, isRequest);
 		}
 		return parsedMsg;
 	}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="euc-kr"?>
 <SET>
 	<server serverName="Server1" ip="192.168.57.163" port="9006"
-		enable="true" handlerName="ForwardHandler">
+		handlerName="ForwardHandler">
 		<error name="ServerNoResponseException">
 			<header>
 				<field type="C" length="4" name="CODE" value="S001" />
@@ -25,7 +25,7 @@
 	</server>
 
 	<server serverName="Server2" ip="192.168.57.163" port="9007"
-		enable="true" handlerName="ReceiveHandler">
+		handlerName="ReceiveHandler">
 		<error name="ServerNoResponseException">
 			<header>
 				<field type="C" length="4" name="CODE" value="S001" />

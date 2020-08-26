@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+  <headers>
+	<error name="NotRegisteredMessageException">
+		<field type="C" length="4" name="CODE" value="H001" />
+	</error>
+	<error name="MessageLengthException">
+		<field type="C" length="4" name="CODE" value="H002" />
+	</error>
+	<error name="HandlerConcurrentException">
+		<field type="C" length="4" name="CODE" value="H003" />
+	</error>
+	<error name="HandlerForwardException">
+		<field type="C" length="4" name="CODE" value="H004" />
+	</error>
+	<error name="HandlerLateServiceException">
+		<field type="C" length="4" name="CODE" value="H005" />
+	</error>
+	<error name="HandlerServiceContractException">
+		<field type="C" length="4" name="CODE" value="H006" />
+	</error>
+	<error name="HandlerServicePeriodException">
+		<field type="C" length="4" name="CODE" value="H007" />
+	</error>
+	<error name="HandlerServiceException">
+		<field type="C" length="4" name="CODE" value="H008" />
+	</error>
+  </headers>
+  <messages>
+	<error name="MessageFieldLengthException">
+		<field name="CODE" value="M001"/>
+		<field name="MESSAGE">
+			<![CDATA[Message Field length Exception]]>
+		</field>
+	</error>
+	<error name="MessageFieldNumberTypeException">
+		<field name="CODE" value="M002"/>
+		<field name="MESSAGE" value="Fill the Number" />
+	</error>
+	<error name="MessageFieldCharTypeException">
+		<field name="CODE" value="M003"/>
+	</error>
+	<error name="MessageFieldBinaryTypeException">
+		<field name="CODE" value="M004"/>
+	</error>
+	<error name="MessageFieldNumberDomainException">
+		<field name="CODE" value="M005"/>
+	</error>
+	<error name="MessageFieldCodeDomainException">
+		<field name="CODE" value="M006"/>
+	</error>
+	<error name="MessageFieldCharsetException">
+		<field name="CODE" value="M007"/>
+	</error>
+	<error name="MessageFieldNullException">
+		<field name="CODE" value="M008"/>
+	</error>
+	<error name="MessageFieldBlankException">
+		<field name="CODE" value="M009"/>
+	</error>
+	<error name="MessageFieldVariableLengthException">
+		<field name="CODE" value="M010"/>
+	</error>
+	<error name="MessageFieldDefaultValueException">
+		<field name="CODE" value="M011"/>
+	</error>
+	<error name="MessageFieldNumberRightPaddingException">
+		<field name="CODE" value="M012"/>
+	</error>
+	<error name="MessageFieldNumberLeftPaddingException">
+		<field name="CODE" value="M013"/>
+	</error>
+	<error name="MessageFieldCharRightPaddingException">
+		<field name="CODE" value="M014"/>
+	</error>
+	<error name="MessageFieldCharLeftPaddingException">
+		<field name="CODE" value="M015"/>
+	</error>
+	<error name="MessageFieldBinaryRightPaddingException">
+		<field name="CODE" value="M016"/>
+	</error>
+	<error name="MessageFieldBinaryLeftPaddingException">
+		<field name="CODE" value="M017"/>
+	</error>
+	<error name="MessageFieldVariablePaddingException">
+		<field name="CODE" value="M018"/>
+	</error>
+	<error name="MessageFieldCypherException">
+		<field name="CODE" value="M019"/>
+	</error>
+	<error name="MessageFieldCypherKeyException">
+		<field name="CODE" value="M020"/>
+	</error>
+	<error name="MessageFieldCypherAlgorithmException">
+		<field name="CODE" value="M021"/>
+	</error>
+	<error name="MessageFieldCypherCharsetException">
+		<field name="CODE" value="M022"/>
+	</error>
+	<error name="MessageFieldCypherInitialVectorException">
+		<field name="CODE" value="M023"/>
+	</error>
+	<error name="MessageResCodeNameException">
+		<field name="CODE" value="M024"/>
+	</error>
+	<error name="MessageReferenceException">
+		<field name="CODE" value="M025"/>
+	</error>
+  </messages>
+</SET>

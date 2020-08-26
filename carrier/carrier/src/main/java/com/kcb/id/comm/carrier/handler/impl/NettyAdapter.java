@@ -16,85 +16,89 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 public abstract class NettyAdapter extends SimpleChannelInboundHandler<Object> {
 
+	int msgLength = 0;
 	int totalByte = 0;
 	List<byte[]> listBuffer;
-	
 	static Logger logger = LoggerFactory.getLogger(NettyAdapter.class);
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		try {
-			if(listBuffer != null) {
-				logger.debug("### OOPS..... Error. ###");
-			}
 			listBuffer = new ArrayList<>();
 			totalByte = 0;
-			logger.debug("channelActive by {}" , this.toString());
-			this.onConnected(ctx);
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 		}
 	}
 
 	@Override
-	public void channelRead0(ChannelHandlerContext ctx, Object msg) {
-		try {
-			ByteBuf buf = ((ByteBuf)msg);
-			logger.debug("channelRead by {} , length = {},  readable = {} , writable = {} " , this.toString() , buf.readableBytes(),  buf.isReadable() , buf.isWritable());
-			byte[] bytes = new byte[buf.readableBytes()];
+	public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception{
+
+		byte[] bytes = null;
+		ByteBuf buf = ((ByteBuf) msg);
+		// 최초 메시지의 앞 4자리를 읽어야 하는 경우
+		if(msgLength == 0) {
+			if (buf.readableBytes() < 4) {
+				throw new Exception("MessageLengthException");
+			}
+			byte[] byteLength = new byte[4];
+			buf.readBytes(byteLength);
+			try {
+				msgLength = Integer.valueOf(new String(byteLength).trim());
+			}catch(Exception e) {
+				throw new Exception("MessageLengthNumberFormatException",e);
+			}
+			
+			if(buf.readableBytes() < msgLength) {
+				buf.resetReaderIndex();
+				return;
+			}
+		}
+		
+		if(buf.readableBytes() > 0) {
+			bytes = new byte[buf.readableBytes()];
 			buf.readBytes(bytes);
 			listBuffer.add(bytes);
 			totalByte += bytes.length;
-			if(buf.isWritable()) {
-				bytes = new byte[totalByte];
-				int destPos = 0;
-				for(byte[] b : listBuffer) {
-					System.arraycopy(b, 0, bytes, destPos , b.length);
-					destPos += b.length;
-				}
-				this.onReceived(ctx, bytes);
-				logger.debug("channelRead length = {} by {} , readable = {} , writable = {} " , totalByte ,this.toString(), buf.isReadable() , buf.isWritable());
+		}else {
+			return;
+		}
+
+		logger.debug("------ channelRead0 ---------");
+		logger.debug("Object ref = ", this.toString());
+		logger.debug("Message Length  = ", msgLength);
+		logger.debug("Read Total Byte Length  = ", totalByte);
+		logger.debug("Read Length = ", bytes.length);
+		logger.debug("Readable Length = ", buf.readableBytes());
+		logger.debug("Readable ? = ", buf.isReadable());
+		logger.debug("Writable ? = ", buf.isWritable());
+		logger.debug("------ channelRead0 ---------");
+		
+		if(totalByte >= msgLength) {
+			this.onReceived(ctx, msgLength,  getReceivedBytes());
+			if(ctx != null) {
+				ctx.flush();
+				ctx.close();
 			}
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-		} finally {
-			try{
-				// if(msg != null && ((ByteBuf)msg).refCnt() != 0)ReferenceCountUtil.release(msg);
-			}catch(Exception e) {}
 		}
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (4)
-		// logger.error(cause.toString(), cause);
-		// if(ctx != null)ctx.close();
+		logger.error(cause.toString(), cause);
+		if (ctx != null)
+			ctx.close();
 	}
 
-	@Override
-	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-		try {
-			byte[] bytes = new byte[totalByte];
-			int destPos = 0;
-			for(byte[] b : listBuffer) {
-				System.arraycopy(b, 0, bytes, destPos , b.length);
-				destPos += b.length;
-			}
-			this.onCompleted(ctx, bytes);
-			logger.debug("channelReadCompleted  by {}" , this.toString());
-			logger.debug("channelReadCompleted length = {} by {}" , totalByte ,this.toString());
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-		} finally {
-			try{
-				ctx.flush();
-				ctx.close();
-			}catch(Exception e) {}
+	private byte[] getReceivedBytes() {
+		byte[] bytes = new byte[totalByte];
+		int destPos = 0;
+		for (byte[] b : listBuffer) {
+			System.arraycopy(b, 0, bytes, destPos, b.length);
+			destPos += b.length;
 		}
+		return bytes;
 	}
 
-	public abstract void onConnected(ChannelHandlerContext ctx);
-
-	public abstract void onReceived(ChannelHandlerContext ctx, byte[] msg);
-	
-	public abstract void onCompleted(ChannelHandlerContext ctx, byte[] bytes);
+	public abstract void onReceived(ChannelHandlerContext ctx, int msgLength, byte[] msg);
 }

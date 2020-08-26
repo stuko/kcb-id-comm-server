@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="euc-kr"?>
 <SET>
 	<message name="FirstMessage">
-		<request repeat="false"	repeatVariable="LENGTH" encoder="false" decoder="false">
+		<request encoder="false" decoder="false">
 			<header>
 				<field type="B" length="4" name="LENGTH"/>
 				<field type="C" length="9" name="TRANSACTION_CODE"/>
@@ -20,14 +20,14 @@
 			<body>
 				<field type="C" length="22" name="SSN" padType="rpad"	padChar="#" encode="false" decode="false"/>
 				<field type="C" length="22" name="SSN2" padType="rpad"	padChar="#" encode="false" decode="false"/>
-				<field type="N" length="4" name="TXT_LENGTH" padType="rpad"	padChar="#" encode="false" decode="false"/>
+				<field type="N" length="4" name="TXT_LENGTH" padType="lpad"	padChar=" " encode="false" decode="false"/>
 				<field type="C" refLength="request.body.TXT_LENGTH" name="TXT" padType="rpad" padChar="#" encode="false" decode="false"/>
 			</body>
 			<tail>
 				<field type="C" length="271" name="FILLER" padType="rpad"	padChar=" " encode="false" decode="false"/>
 			</tail>
 		</request>
-		<response repeat="false" repeatVariable="LENGTH" encoder="false" decoder="false">
+		<response encoder="false" decoder="false">
 			<header>
 				<field type="B" length="4" name="LENGTH"/>
 				<field type="C" length="9" name="TRANSACTION_CODE" ref="request.header.TRANSACTION_CODE" />

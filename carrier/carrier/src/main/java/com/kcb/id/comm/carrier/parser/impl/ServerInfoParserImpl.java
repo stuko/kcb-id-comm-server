@@ -21,7 +21,7 @@ public class ServerInfoParserImpl implements ServerInfoParser {
 	static Logger logger = LoggerFactory.getLogger(ServerInfoParserImpl.class);
 	
 	@Override
-	public List<ServerInfo> parse(NodeList nodeList) {
+	public List<ServerInfo> parse(NodeList nodeList) throws Exception {
 		List<ServerInfo> list = new ArrayList<>();
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			if (nodeList.item(i).getNodeType() == Node.TEXT_NODE)
@@ -51,7 +51,7 @@ public class ServerInfoParserImpl implements ServerInfoParser {
 								logger.debug("error node exists");
 								String exception = subSubNodeList.item(k).getAttributes().getNamedItem("name").getNodeValue();
 								parser = new FieldParser();
-								serverInfo.getExceptionMessageMap().put(exception, parser.parseFields(subSubNodeList.item(k)));
+								serverInfo.getExceptionMessageMap().put(exception, parser.parseFields(subSubNodeList.item(k),false));
 							}
 						}
 					}

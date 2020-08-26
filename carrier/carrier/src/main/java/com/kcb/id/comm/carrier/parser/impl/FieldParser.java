@@ -14,31 +14,31 @@ public class FieldParser {
 
 	static Logger logger = LoggerFactory.getLogger(FieldParser.class);
 
-	public Message parseFields(Node subSubNode) {
-		return this.parseFields(new MessageImpl(), subSubNode);
+	public Message parseFields(Node subSubNode, boolean isRequest) throws Exception {
+		return this.parseFields(new MessageImpl(), subSubNode , isRequest);
 	}
 		
-	public Message parseFields(Message parsedMsg, Node subSubNode) {
+	public Message parseFields(Message parsedMsg, Node subSubNode , boolean isRequest) throws Exception {
 		
 		Field[] fields = null;
 		if (subSubNode.getNodeName().equals("header")) {
 			logger.debug("header node exists");
-			fields = getFields(subSubNode);
+			fields = getFields(subSubNode , isRequest);
 			parsedMsg.setHeader(fields);
 		} else if (subSubNode.getNodeName().equals("body")) {
 			logger.debug("body node exists");
-			fields = getFields(subSubNode);
+			fields = getFields(subSubNode , isRequest);
 			parsedMsg.setBody(fields);
 		} else if (subSubNode.getNodeName().equals("tail")) {
 			logger.debug("tail node exists");
-			fields = getFields(subSubNode);
+			fields = getFields(subSubNode , isRequest);
 			parsedMsg.setTail(fields);
 		}
 		return parsedMsg;
 		
 	}
 
-	private Field[] getFields(Node subSubNode) {
+	private Field[] getFields(Node subSubNode, boolean isRequest) throws Exception{
 
 		NodeList subSubSubNodeList = ((Element) subSubNode).getElementsByTagName("field");
 		Field[] fields = null;
@@ -52,33 +52,43 @@ public class FieldParser {
 			Node subSubSubSubNode = subSubSubNodeList.item(l);
 			fields[l] = new Field();
 			
+			if(isRequest 
+			&& (subSubSubSubNode.getAttributes().getNamedItem("isResCode") != null || subSubSubSubNode.getAttributes().getNamedItem("ref") != null) )
+				throw new Exception("MessageFormatException");
+			
 			if (subSubSubSubNode.getAttributes().getNamedItem("length") != null) {
 				fields[l].setLength(subSubSubSubNode.getAttributes().getNamedItem("length").getNodeValue());
 			}
-			
 			if (subSubSubSubNode.getAttributes().getNamedItem("refLength") != null) {
 				fields[l].setRefLength(subSubSubSubNode.getAttributes().getNamedItem("refLength").getNodeValue());
 			}
-			
-			fields[l].setName(subSubSubSubNode.getAttributes().getNamedItem("name").getNodeValue());
+			if (subSubSubSubNode.getAttributes().getNamedItem("name") != null) {
+				fields[l].setName(subSubSubSubNode.getAttributes().getNamedItem("name").getNodeValue());
+			}
 			if (subSubSubSubNode.getAttributes().getNamedItem("padType") != null) {
 				fields[l].setPadType(subSubSubSubNode.getAttributes().getNamedItem("padType").getNodeValue());
-			}else if (subSubSubSubNode.getAttributes().getNamedItem("padChar") != null) {
-				fields[l].setPadChar(subSubSubSubNode.getAttributes().getNamedItem("padChar").getNodeValue());
-			}else if (subSubSubSubNode.getAttributes().getNamedItem("encode") != null) {
-				fields[l].setEncode(subSubSubSubNode.getAttributes().getNamedItem("encode").getNodeValue());
-			}else if (subSubSubSubNode.getAttributes().getNamedItem("decode") != null) {
-				fields[l].setDecode(subSubSubSubNode.getAttributes().getNamedItem("decode").getNodeValue());
-			}else if (subSubSubSubNode.getAttributes().getNamedItem("value") != null) {
-				fields[l].setValue(subSubSubSubNode.getAttributes().getNamedItem("value").getNodeValue());
-			}else if (subSubSubSubNode.getAttributes().getNamedItem("isResCode") != null) {
-				String isResCode = subSubSubSubNode.getAttributes().getNamedItem("isResCode").getNodeValue();
-				if("true".contentEquals(isResCode))fields[l].setResCode(true);
-				else fields[l].setResCode(false);
-			}else if(subSubSubSubNode.getAttributes().getNamedItem("ref") != null) {
-				fields[l].setValue(subSubSubSubNode.getAttributes().getNamedItem("ref").getNodeValue());
 			}
-			logger.debug("field data : " + fields[l].toRaw());
+			if (subSubSubSubNode.getAttributes().getNamedItem("padChar") != null) {
+				fields[l].setPadChar(subSubSubSubNode.getAttributes().getNamedItem("padChar").getNodeValue());
+			}
+			if (subSubSubSubNode.getAttributes().getNamedItem("encode") != null) {
+				fields[l].setEncode(subSubSubSubNode.getAttributes().getNamedItem("encode").getNodeValue());
+			}
+			if (subSubSubSubNode.getAttributes().getNamedItem("decode") != null) {
+				fields[l].setDecode(subSubSubSubNode.getAttributes().getNamedItem("decode").getNodeValue());
+			}
+			if (subSubSubSubNode.getAttributes().getNamedItem("value") != null) {
+				fields[l].setValue(subSubSubSubNode.getAttributes().getNamedItem("value").getNodeValue());
+			}
+			if (subSubSubSubNode.getAttributes().getNamedItem("isResCode") != null) {
+				String isResCode = subSubSubSubNode.getAttributes().getNamedItem("isResCode").getNodeValue();
+				if("true".equals(isResCode))fields[l].setResCode(true);
+				else fields[l].setResCode(false);
+			}
+			if(subSubSubSubNode.getAttributes().getNamedItem("ref") != null) {
+				fields[l].setRef(subSubSubSubNode.getAttributes().getNamedItem("ref").getNodeValue());
+			}
+			
 		}
 		return fields;
 		

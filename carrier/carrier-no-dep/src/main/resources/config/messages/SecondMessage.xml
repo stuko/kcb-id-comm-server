@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<SET>
+	<message messageName="SecondMessage"  forwardMessageName="" kindCode="" messageCode=""  preBean="sampleServiceImpl" postBean="sampleServiceImpl2">
+		<request>
+			<body>
+				<field type="C" isMessageCode="true" length="4" name="MSG_CODE"/>			
+				<field type="C" length="22" name="SSN" padType="rpad"	padChar="#" encoder="encoderBean1" decoder="decoderBean1"/>
+				<field type="C" length="22" name="SSN2" padType="rpad"	padChar="#" encoder="encoderBean1" decoder="decoderBean1"/>
+				<field type="N" length="4" name="TXT_LENGTH" padType="lpad"	padChar=" " encoder="encoderBean1" decoder="decoderBean1"/>
+				<field type="C" refLength="request.body.TXT_LENGTH" name="TXT" padType="rpad" padChar="#" encoder="encoderBean1" decoder="decoderBean1"/>
+			</body>
+			<tail>
+				<field type="C" length="271" name="FILLER" padType="rpad"	padChar=" "/>
+			</tail>
+		</request>
+		<response encoder="false" decoder="false">
+			<body>
+				<field type="C" length="4" name="NAME" padType="rpad" padChar=" " encoder="encoderBean1" decoder="decoderBean1"/>
+			</body>
+			<tail>
+				<field type="C" length="8" name="MEMCODE" padType="rpad" padChar=" " encoder="encoderBean1" decoder="decoderBean1"/>
+			</tail>
+		</response>
+	</message>
+</SET>
