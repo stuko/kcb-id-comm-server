@@ -11,7 +11,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.kcb.id.comm.carrier.loader.Message;
-import com.kcb.id.comm.carrier.loader.MessageFrame;
 import com.kcb.id.comm.carrier.loader.MessageInfo;
 import com.kcb.id.comm.carrier.loader.impl.Field;
 import com.kcb.id.comm.carrier.loader.impl.MessageImpl;

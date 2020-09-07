@@ -20,6 +20,7 @@ import com.kcb.id.comm.carrier.loader.DeEncoder;
 import com.kcb.id.comm.carrier.loader.Message;
 import com.kcb.id.comm.carrier.loader.impl.Field;
 
+
 public class ByteUtils {
 
 	static Logger logger = LoggerFactory.getLogger(ByteUtils.class);

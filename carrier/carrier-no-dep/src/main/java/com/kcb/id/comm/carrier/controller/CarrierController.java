@@ -21,7 +21,9 @@ import com.kcb.id.comm.carrier.loader.MessageInfo;
 import com.kcb.id.comm.carrier.loader.impl.Field;
 import com.kcb.id.comm.carrier.service.IService;
 
+
 @RestController
+@RequestMapping("/carrier")
 public class CarrierController {
 	
 	static Logger logger = LoggerFactory.getLogger(CarrierController.class);
@@ -36,6 +38,14 @@ public class CarrierController {
 	 */
 	@Autowired
 	private ApplicationContext context;
+	
+	@RequestMapping("/greeting")
+	public String hi() { return "Hello Spring Boot!!"; }
+	
+	@RequestMapping(value="/hello",method=RequestMethod.GET)
+	public String hello() throws Exception {
+		return "hi";
+	}
 	
 	@RequestMapping(value="/request" , method= RequestMethod.POST)
 	public byte[] request(@RequestBody byte[] msg) throws Exception{
