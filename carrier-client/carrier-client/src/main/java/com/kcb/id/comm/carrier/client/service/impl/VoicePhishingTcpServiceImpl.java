@@ -1,6 +1,7 @@
 package com.kcb.id.comm.carrier.client.service.impl;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,13 @@ import com.google.gson.Gson;
 import com.kcb.id.comm.carrier.client.common.JsonUtils;
 import com.kcb.id.comm.carrier.client.service.VoicePhishingService;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import okhttp3.MediaType;
 
 @Configuration
@@ -41,26 +49,28 @@ public class VoicePhishingTcpServiceImpl implements VoicePhishingService {
 	}
 
 	private String tcp(String ip, String port) throws IOException {
-		/*
 		EventLoopGroup group = new NioEventLoopGroup();
 		try{
 		    Bootstrap clientBootstrap = new Bootstrap();
-
 		    clientBootstrap.group(group);
 		    clientBootstrap.channel(NioSocketChannel.class);
 		    clientBootstrap.remoteAddress(new InetSocketAddress("localhost", 9999));
 		    clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
 		        protected void initChannel(SocketChannel socketChannel) throws Exception {
-		            socketChannel.pipeline().addLast(new ClientHandler());
+		            socketChannel.pipeline().addLast(()->{
+		            	
+		            });
 		        }
 		    });
 		    ChannelFuture channelFuture = clientBootstrap.connect().sync();
 		    channelFuture.channel().closeFuture().sync();
-		} finally {
 		    group.shutdownGracefully().sync();
+		} catch(Exception e){
+			
+		}finally {
 		}
 		
-		*/
+
 		return null;
 	}
 

@@ -6,12 +6,19 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,13 +144,6 @@ public class NettyUtils {
 	}
 	
 	/*
-	 * 입력한 문자를 입력한 사이즈 만큼 스트링으로 만들어 주는 메서드 JDK 11버전용
-	 */
-	public static String fillJ11(String one, int size) {
-		return one.repeat(size);
-	}
-	
-	/*
 	 * 입력한 전문과 입력한 맵(데이터)를 가지고 바이트 배열(ByteBuf:Netty용)의 실제 데이터 전문을 만들어 주는 메서드
 	 */
 	public static ByteBuf getMessage2ByteBuf(Message message, Map<String,Object> map) throws Exception {
@@ -176,6 +176,38 @@ public class NettyUtils {
 			buf.writeBytes(f.getValueBytes());
 		}
 		return buf;
+	}
+	
+	public static byte[] sendNio(String host, int port, int timeout, byte[] msg) throws Exception{
+		InetSocketAddress hostAddress = new InetSocketAddress(host, port);
+		Selector selector = Selector.open();
+		SocketChannel client = SocketChannel.open(hostAddress);
+		client.configureBlocking(false);
+		int validOps = client.validOps();
+		client.register(selector, validOps, null);
+		ByteBuffer buffer = ByteBuffer.wrap(msg);
+		ByteBuffer readBuffer = ByteBuffer.allocate(8192);
+		client.write(buffer);
+		buffer.clear();
+		boolean read=true;
+		while(read) {
+			selector.select();
+			Set<SelectionKey> selectKeys = selector.selectedKeys();
+			Iterator<SelectionKey> selectIterator = selectKeys.iterator();
+			while (selectIterator.hasNext()) {
+				SelectionKey myKey = selectIterator.next();
+				SocketChannel readClient = (SocketChannel) myKey.channel();
+				readClient.read(readBuffer);
+				String result = new String(readBuffer.array()).trim();
+				logger.debug("result = {}", result);
+				readClient.close();
+				read = false;
+ 				selectIterator.remove();
+			}
+		}
+		byte[] data = new byte[readBuffer.array().length];
+        System.arraycopy(readBuffer.array(), 0, data, 0, readBuffer.array().length);
+		return data;
 	}
 
 	public static byte[] send(String host, int port, int timeout, byte[] msg) throws Exception{

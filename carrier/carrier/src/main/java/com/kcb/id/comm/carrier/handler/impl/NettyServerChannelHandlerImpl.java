@@ -1,11 +1,6 @@
 package com.kcb.id.comm.carrier.handler.impl;
 
 import java.io.ByteArrayInputStream;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -130,7 +125,8 @@ public class NettyServerChannelHandlerImpl implements Handler {
 		try {
 			int timeOut = Integer.parseInt(handler.getTimeOut());
 			logger.debug("[{}][{}][{}]",handler.getForward(),handler.getForwardIp(), handler.getForwardPort());
-			return NettyUtils.send(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
+			return NettyUtils.sendNio(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
+			// return NettyUtils.send(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
 		} catch (Exception e) {
 			throw new Exception("ForwardException", e);
 		}

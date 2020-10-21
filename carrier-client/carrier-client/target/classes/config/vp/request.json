@@ -1,0 +1,9 @@
+{
+  name: "name",
+  addr: "address",
+  job : {
+    location: "job.loc",
+    phone : "phone"
+  }
+  object: "data.listData"
+}

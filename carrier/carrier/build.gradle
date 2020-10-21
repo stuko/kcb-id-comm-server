@@ -11,8 +11,11 @@ version = '0.0.1-SNAPSHOT'
 compileJava {
     options.fork = true
     options.forkOptions.javaHome = file('C:/Program Files/RedHat/java-11-openjdk-11.0.8-2')
-    targetCompatibility = 11
-    sourceCompatibility = 11
+    // targetCompatibility = 11
+    // sourceCompatibility = 11
+    targetCompatibility = 8
+    sourceCompatibility = 8
+    
 }
 
 repositories {

@@ -1,18 +1,11 @@
 package com.kcb.id.comm.carrier.core.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 import com.kcb.id.comm.carrier.common.NettyUtils;
@@ -30,7 +21,6 @@ import com.kcb.id.comm.carrier.core.Carrier;
 import com.kcb.id.comm.carrier.handler.Handler;
 import com.kcb.id.comm.carrier.handler.impl.NettyAdapter;
 import com.kcb.id.comm.carrier.loader.HandlerInfoLoader;
-import com.kcb.id.comm.carrier.loader.Loader;
 import com.kcb.id.comm.carrier.loader.Message;
 import com.kcb.id.comm.carrier.loader.MessageInfo;
 import com.kcb.id.comm.carrier.loader.MessageInfoLoader;
@@ -113,7 +103,7 @@ public class CarrierImpl implements Carrier {
 	Map<String,EventLoopGroup> bossMap = new HashMap<>();
 	Map<String,EventLoopGroup> workerMap = new HashMap<>();
 	
-	int boss = 1, worker = 1;
+	int boss = 10, worker = 10;
 	
 	/*
 	 * 스프링의 어플리케이션 컨텍스트, 빈들을 참조하기 위한 용도
