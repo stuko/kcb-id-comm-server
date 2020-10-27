@@ -44,7 +44,7 @@
 				<field type="B" length="43" name="FILLER"/>
 			</header>
 			<body>
-				<field type="C" length="4" name="NAME" padType="rpad" padChar=" " encode="false" decode="false"/>
+				<field type="C" length="4" name="NAME" padType="rpad" padChar=" " ref="response.body.NAME" encode="false" decode="false"/>
 			</body>
 			<tail>
 				<field type="C" length="8" name="MEMCODE" padType="rpad" padChar=" " encode="false" decode="false"/>

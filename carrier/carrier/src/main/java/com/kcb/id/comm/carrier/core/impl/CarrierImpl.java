@@ -216,6 +216,7 @@ public class CarrierImpl implements Carrier {
                     .childOption(ChannelOption.SO_REUSEADDR, true); 
 			this.getBossMap().put(server.getName(),bossGroup);
 			this.getWorkerMap().put(server.getName(),workerGroup);
+			
 			logger.debug("Server will be listening... {}" , server.getPort());
 			ChannelFuture f = b.bind(server.getPort()).sync();
 			f.channel().closeFuture().sync();

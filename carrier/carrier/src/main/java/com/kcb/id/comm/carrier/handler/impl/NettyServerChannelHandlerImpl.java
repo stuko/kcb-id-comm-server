@@ -52,13 +52,21 @@ public class NettyServerChannelHandlerImpl implements Handler {
 			// 요청 전문 파싱
 			MessageInfo parsedMsg = this.parseMessage(msg, true, messageInfo);
 			
+			logger.debug("############# service call info #################");
+			logger.debug("service call request message : [{}]", new String(msg));
 			// 서비스가 있으면 실행 한다.
 			Map<String,Object> resultMap = executeService(handler, parsedMsg);
-			
+			logger.debug("service call response message : {}", resultMap);
+			logger.debug("############# service call info #################");
 			byte[] forwardResult = null;
 			// 포워딩이 필요하면 포워딩 한다.
 			if (StringUtils.chkNull(handler.getForward()) && messageRepository.get(handler.getForward()) != null) {
+				logger.debug("############# forward info #################");
+				logger.debug("forward request message : [{}]", new String(msg));
 				forwardResult = forward(ctx, handler, msg);
+				if(forwardResult != null) logger.debug("forward response message : [{}]", new String(forwardResult));
+				else logger.debug("forward response message is null");
+				logger.debug("############# forward info #################");
 				// 포워드 결과중 response 정보를 맵에 저장 한다.
 				if(forwardResult != null) {
 					// 응답 전문 파싱
@@ -125,8 +133,9 @@ public class NettyServerChannelHandlerImpl implements Handler {
 		try {
 			int timeOut = Integer.parseInt(handler.getTimeOut());
 			logger.debug("[{}][{}][{}]",handler.getForward(),handler.getForwardIp(), handler.getForwardPort());
-			return NettyUtils.sendNio(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
-			// return NettyUtils.send(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
+			// return NettyUtils.sendNio2(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
+			// return NettyUtils.sendNio(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
+			return NettyUtils.sendNonBlock(handler.getForwardIp(), handler.getForwardPort(), timeOut, forwardBytes);
 		} catch (Exception e) {
 			throw new Exception("ForwardException", e);
 		}

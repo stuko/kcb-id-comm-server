@@ -22,6 +22,7 @@ public class ServerInfoParserImpl implements ServerInfoParser {
 	
 	@Override
 	public List<ServerInfo> parse(NodeList nodeList) throws Exception {
+		String offset = System.getProperty("carrier.port.offset");
 		List<ServerInfo> list = new ArrayList<>();
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			if (nodeList.item(i).getNodeType() == Node.TEXT_NODE)
@@ -38,7 +39,17 @@ public class ServerInfoParserImpl implements ServerInfoParser {
 					serverInfo.setName(serverName);
 					serverInfo.setIP(subNodeList.item(j).getAttributes().getNamedItem("ip").getNodeValue());
 					String port = subNodeList.item(j).getAttributes().getNamedItem("port").getNodeValue();
-					if(port != null) serverInfo.setPort(Integer.parseInt(port));
+					if(port != null) {
+						serverInfo.setPort(Integer.parseInt(port));
+						int ioffset = 0;
+						if(offset != null) {
+							try {
+								ioffset = Integer.parseInt(offset);
+								serverInfo.setPort(serverInfo.getPort()+ioffset);
+							}catch(Exception e) {}
+						}
+						
+					}
 					logger.debug("Server info is {}:{}", serverInfo.getIP(), serverInfo.getPort());
 					serverInfo.setHandlerName(subNodeList.item(j).getAttributes().getNamedItem("handlerName").getNodeValue());
 					

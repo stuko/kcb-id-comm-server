@@ -179,12 +179,13 @@ public class NettyUtils {
 	}
 	
 	public static byte[] sendNio(String host, int port, int timeout, byte[] msg) throws Exception{
+		logger.debug("############ send nio ###############");
+		logger.debug("host = {} , port = {}", host, port);
 		InetSocketAddress hostAddress = new InetSocketAddress(host, port);
 		Selector selector = Selector.open();
 		SocketChannel client = SocketChannel.open(hostAddress);
 		client.configureBlocking(false);
-		int validOps = client.validOps();
-		client.register(selector, validOps, null);
+		client.register(selector, SelectionKey.OP_READ|SelectionKey.OP_WRITE);
 		ByteBuffer buffer = ByteBuffer.wrap(msg);
 		ByteBuffer readBuffer = ByteBuffer.allocate(8192);
 		client.write(buffer);
@@ -207,6 +208,82 @@ public class NettyUtils {
 		}
 		byte[] data = new byte[readBuffer.array().length];
         System.arraycopy(readBuffer.array(), 0, data, 0, readBuffer.array().length);
+        logger.debug("############ send nio ###############");
+		return data;
+	}
+	
+	public static byte[] sendNonBlock(String host, int port, int timeout, byte[] msg) throws Exception{
+		byte[] data = null;
+		InetSocketAddress hostAddress = new InetSocketAddress(host, port);
+		SocketChannel client = SocketChannel.open(hostAddress);
+		Selector selector = Selector.open();
+		client.configureBlocking(false);
+		client.register(selector,SelectionKey.OP_WRITE|SelectionKey.OP_READ);
+		selector.select();
+		ByteBuffer writeBuffer = ByteBuffer.wrap(msg);
+		logger.debug("writing.........{} " , new String(writeBuffer.array()));
+		Set<SelectionKey> selectKeys = selector.selectedKeys();
+		Iterator<SelectionKey> selectIterator = selectKeys.iterator();
+		logger.debug("########### sendNonBlock write ##############");
+		while (selectIterator.hasNext()) {
+			logger.debug("Selector has Next.....");
+			SelectionKey myKey = selectIterator.next();
+			logger.debug("{},{},{},{},{}",myKey.isWritable(),myKey.isAcceptable(),myKey.isConnectable(),myKey.isReadable(),myKey.isValid());
+			if(myKey.isWritable()) {
+				client.write(writeBuffer);
+				logger.debug("complete writing.....");
+				writeBuffer.clear();
+			}
+		}
+		logger.debug("########### sendNonBlock write ##############");
+		selector.select();
+		selectKeys = selector.selectedKeys();
+		selectIterator = selectKeys.iterator();
+		logger.debug("########### sendNonBlock read ##############");
+		while (selectIterator.hasNext()) {
+			logger.debug("Selector has Next.....");
+			SelectionKey myKey = selectIterator.next();
+			logger.debug("{},{},{},{},{}",myKey.isWritable(),myKey.isAcceptable(),myKey.isConnectable(),myKey.isReadable(),myKey.isValid());
+			if(myKey.isValid()) {
+				logger.debug("Selector is readable....");
+				SocketChannel readClient = (SocketChannel) myKey.channel();
+				ByteBuffer readBuffer = ByteBuffer.allocate(8192);
+				readClient.read(readBuffer);
+				String result = new String(readBuffer.array()).trim();
+				logger.debug("result = {}", result);
+				readBuffer.clear();
+				readClient.close();
+				data = new byte[readBuffer.array().length];
+				System.arraycopy(readBuffer.array(), 0, data, 0, readBuffer.array().length);
+			}
+			selectIterator.remove();
+		}
+		logger.debug("########### sendNonBlock read ##############");
+		client.close();
+		return data;
+	}
+	
+	public static byte[] sendNio2(String host, int port, int timeout, byte[] msg) throws Exception{
+		byte[] data = null;
+		InetSocketAddress hostAddress = new InetSocketAddress(host, port);
+		SocketChannel client = SocketChannel.open(hostAddress);
+		ByteBuffer writeBuffer = ByteBuffer.wrap(msg);
+		logger.debug("writing.........{} " , new String(writeBuffer.array()));
+		logger.debug("########### sendNonBlock write ##############");
+		client.write(writeBuffer);
+		logger.debug("complete writing.....");
+		writeBuffer.clear();
+		logger.debug("########### sendNonBlock write ##############");
+		logger.debug("########### sendNonBlock read ##############");
+		ByteBuffer readBuffer = ByteBuffer.allocate(8192);
+		client.read(readBuffer);
+		String result = new String(readBuffer.array()).trim();
+		logger.debug("result = {}", result);
+		readBuffer.clear();
+		data = new byte[readBuffer.array().length];
+		System.arraycopy(readBuffer.array(), 0, data, 0, readBuffer.array().length);
+		logger.debug("########### sendNonBlock read ##############");
+		client.close();
 		return data;
 	}
 
